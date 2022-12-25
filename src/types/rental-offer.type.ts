@@ -1,7 +1,7 @@
 
 import { CityEnum } from './cities.js';
-import { HousingType } from './housing-type.enum.js';
-import { OfferFeatures } from './offer-features.enum';
+import { HousingType } from './enums/housing-type.enum.js';
+import { OfferFeatures } from './enums/offer-features.enum';
 import { User } from './user.type';
 
 export type RentalOffer = {

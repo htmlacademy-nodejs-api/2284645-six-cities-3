@@ -1,0 +1,92 @@
+{
+  "api": {
+    "names": [
+      "Luxury Apartments",
+      "Little House",
+      "Large Studio Room",
+      "Beautiful Hotel Room",
+      "Awesome Living Offer"
+    ],
+    "descriptions": [
+      "Experience the arctic light in the true last wilderness of Europe. In the cultural melting pot of the Sami culture you find our sustainable and eco-friendly luxury suite for two.",
+      "2-bedroom holiday home located directly on the beach!",
+      "Large privat ground. Excellent private lake access. Wonderful scenic view with the house facing water in three directions.",
+      "This luxurious villa is the perfect choice for a family vacation. It can accommodate up to 14 persons, with 6 bedrooms with king sized beds, two fully equipped kitchens and living rooms, 6,5 bathrooms",
+      "Luxury Villa Sol del Mar III. Welcomes you to an unforgettable stay surrounded by elegance and luxury only a couple steps away from the Adriatic Sea."
+    ],
+    "cities": [
+      "Paris",
+      "Cologne",
+      "Brussels",
+      "Amsterdam",
+      "Hamburg",
+      "Dusseldorf"
+    ],
+    "previewImages": [
+      "beautiful.jpg",
+      "photo.jpg",
+      "house.png",
+      "rentoffer.png",
+      "IMG.jpg"
+    ],
+    "photos": [
+      [
+        "lake.jpg",
+        "waterslide.png"
+      ],
+      [
+        "house.jpg",
+        "room.jpg"
+      ],
+      [
+        "123.jpg",
+        "123321.png",
+        "room.jpg"
+      ],
+      [
+        "beach.png",
+        "house.png"
+      ],
+      [
+        "playground.jpg"
+      ]
+    ],
+    "authors": [
+      {
+        "name": "John Doe",
+        "email": "johndoe@jd.ru",
+        "avatar": "joh.jpg",
+        "password": "123456",
+        "type": "pro"
+      },
+      {
+        "name": "James Bond",
+        "email": "zekilla@gmail.com",
+        "avatar": "avatar132.jpg",
+        "password": "33211322",
+        "type": "обычный"
+      },
+      {
+        "name": "Samiel Jordan",
+        "email": "samiel32@yahoo.com",
+        "avatar": "sam.png",
+        "password": "tototo123",
+        "type": "обычный"
+      },
+      {
+        "name": "Marlin Jim",
+        "email": "setmefree@mail.ru",
+        "avatar": "zeavatar.jpg",
+        "password": "$x$##42@x@x@",
+        "type": "pro"
+      },
+      {
+        "name": "Felix Black",
+        "email": "fblack11@fbl.com",
+        "avatar": "him.png",
+        "password": "password123",
+        "type": "обычный"
+      }
+    ]
+  }
+}
