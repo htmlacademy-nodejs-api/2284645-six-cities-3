@@ -5,9 +5,7 @@ export interface CityInterface {
   }
 }
 
-export interface CityEnum {
-  [key: string]: CityInterface;
-}
+export type CityEnum = Record<string, CityInterface>;
 
 export const Cities: CityEnum = {
   Paris: {
