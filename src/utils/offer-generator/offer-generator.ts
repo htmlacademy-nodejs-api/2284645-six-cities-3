@@ -1,9 +1,8 @@
 import dayjs from 'dayjs';
-import { HousingType } from '../../types/enums/housing-type.enum.js';
-import { OfferFeatures } from '../../types/enums/offer-features.enum.js';
+import { HousingType, housingTypes } from '../../types/enums/housing-type.enum.js';
+import { OfferFeatures, offerFeatures } from '../../types/enums/offer-features.enum.js';
 import { MockData } from '../../types/mock-data.type.js';
 import { getRandomValue, getRandomItem, getRandomItems } from '../../utils/random.js';
-import { convertEnumToArray } from '../enum-converter.js';
 import { OfferGeneratorInterface } from './offer-generator.interface.js';
 
 const MIN_PRICE = 50;
@@ -24,12 +23,12 @@ export default class OfferGenerator implements OfferGeneratorInterface {
       photos = getRandomItems<string>(this.mockData.photos).join(','),
       isPremium = getRandomValue(0, 1) === 1,
       isFavorite = getRandomValue(0, 1) === 1,
-      type = getRandomItem(convertEnumToArray(HousingType)),
+      type = getRandomItem<string>(housingTypes.map((t) => t as HousingType)),
       rating = getRandomValue(1, 5),
       rooms = getRandomValue(1, 6),
       guests = getRandomValue(1, 10),
       price = getRandomValue(MIN_PRICE, MAX_PRICE).toString(),
-      features = getRandomItems<string>(convertEnumToArray(OfferFeatures)).join(','),
+      features = getRandomItems<string>(offerFeatures.map((t) => t as OfferFeatures)).join(','),
       author = getRandomItem(this.mockData.authors),
       coordinates = [getRandomValue(2.390, 51.205).toFixed(3), getRandomValue(1.005, 36.815).toFixed(3)];
 

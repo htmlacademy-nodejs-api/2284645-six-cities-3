@@ -1,6 +1,7 @@
-export enum HousingType {
-	'apartment',
-	'house',
-	'room',
-	'hotel',
-}
+export const housingTypes = [
+  'apartment',
+  'house',
+  'room',
+  'hotel',
+] as const;
+export type HousingType = typeof housingTypes[number];
