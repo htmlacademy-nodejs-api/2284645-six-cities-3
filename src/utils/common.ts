@@ -37,18 +37,18 @@ export const createOffer = (row: string) => {
     photos: photos.split(','),
     isPremium: isPremium === 'true',
     isFavorite: isFavorite === 'true',
-    type: HousingType[type as 'apartment' | 'house' | 'room' | 'hotel'],
+    type: type as HousingType,
     rating: Number.parseInt(rating, 10),
     rooms: Number.parseInt(rooms, 10),
     guests: Number.parseInt(guests, 10),
     price: Number.parseInt(price, 10),
-    features: features.split(',') as unknown as OfferFeatures[],
+    features: features.split(',') as OfferFeatures[],
     author: {
       name: authorName,
       email: authorEmail,
       avatar: authorAvatar,
       password: authorPassword,
-      type: authorType as unknown as UserType,
+      type: authorType as UserType,
     },
     coordinates: (() => {
       const [latitude, longitude] = coordinates.split(',');
