@@ -43,7 +43,7 @@ export const createOffer = (row: string) => {
     rooms: Number.parseInt(rooms, 10),
     guests: Number.parseInt(guests, 10),
     price: Number.parseInt(price, 10),
-    features: features.split(',') as [OfferFeatures],
+    features: features.split(',') as OfferFeatures[],
     author: {
       name: authorName,
       email: authorEmail,
