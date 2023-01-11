@@ -17,9 +17,7 @@ import DatabaseService from '../utils/database/database.service.js';
 import TSVFileReader from '../utils/file-reader/tsv-file-reader.js';
 import { LoggerInterface } from '../utils/logger/logger.interface.js';
 import ConsoleLoggerService from '../utils/logger/console-logger.service.js';
-
-const DEFAULT_DB_PORT = 27017;
-const DEFAULT_USER_PASSWORD = '123456';
+import { getRandomValue } from '../utils/random.js';
 
 export default class ImportCommand implements CliCommandInterface {
   public readonly name = '--import';
@@ -42,7 +40,7 @@ export default class ImportCommand implements CliCommandInterface {
   private async saveOffer(offer: RentalOffer) {
     const author = await this.userService.findOrCreate({
       ...offer.author,
-      password: DEFAULT_USER_PASSWORD
+      password: getRandomValue(10000, 50000).toString()
     }, this.salt);
 
     await this.rentalOfferService.create({
@@ -62,8 +60,8 @@ export default class ImportCommand implements CliCommandInterface {
     this.databaseService.disconnect();
   }
 
-  public async execute(filename: string, login: string, password: string, host: string, dbname: string, salt: string): Promise<void> {
-    const uri = getURI(login, password, host, DEFAULT_DB_PORT, dbname);
+  public async execute(filename: string, login: string, password: string, host: string, port: string, dbname: string, salt: string): Promise<void> {
+    const uri = getURI(login, password, host, Number(port), dbname);
     this.salt = salt;
 
     await this.databaseService.connect(uri);
