@@ -30,7 +30,8 @@ export default class OfferGenerator implements OfferGeneratorInterface {
       price = getRandomValue(MIN_PRICE, MAX_PRICE).toString(),
       features = getRandomItems<string>(offerFeatures.map((t) => t as OfferFeatures)).join(','),
       author = getRandomItem(this.mockData.authors),
-      coordinates = [getRandomValue(2.390, 51.205).toFixed(3), getRandomValue(1.005, 36.815).toFixed(3)];
+      longitude = getRandomValue(2.390, 51.205).toFixed(3),
+      latitude = getRandomValue(1.005, 36.815).toFixed(3);
 
     return [
       name,
@@ -50,9 +51,9 @@ export default class OfferGenerator implements OfferGeneratorInterface {
       author.name,
       author.email,
       author.avatar,
-      author.password,
       author.type,
-      coordinates,
+      longitude,
+      latitude,
     ].join('\t');
   }
 }

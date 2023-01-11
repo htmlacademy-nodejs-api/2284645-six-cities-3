@@ -1,13 +1,4 @@
-export interface CityInterface {
-  coordinates: {
-    latitude: number;
-    longitude: number;
-  }
-}
-
-export type CityEnum = Record<string, CityInterface>;
-
-export const Cities: CityEnum = {
+export const cities = {
   Paris: {
     coordinates: {
       latitude: 48.85661,
@@ -44,4 +35,14 @@ export const Cities: CityEnum = {
       longitude: 6.776314
     }
   }
-};
+} as const;
+export type CityType = typeof cities;
+export type CityEnum = keyof CityType;
+export enum CityNamesEnum {
+  Paris = 'Paris',
+  Cologne = 'Cologne',
+  Brussels = 'Brussels',
+  Amsterdam = 'Amsterdam',
+  Hamburg = 'Hamburg',
+  Dusseldorf = 'Dusseldorf'
+}
