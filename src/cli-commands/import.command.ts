@@ -56,7 +56,7 @@ export default class ImportCommand implements CliCommandInterface {
   }
 
   private onComplete(count: number) {
-    console.log(`${count} rows imported.`);
+    this.logger.info(`${count} rows imported.`);
     this.databaseService.disconnect();
   }
 
