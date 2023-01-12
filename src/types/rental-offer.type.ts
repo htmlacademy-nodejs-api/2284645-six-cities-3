@@ -1,7 +1,7 @@
 
 import { CityEnum } from './cities.js';
 import { HousingType } from './enums/housing-type.enum.js';
-import { OfferFeatures } from './enums/offer-features.enum';
+import { OfferFeatures } from './enums/offer-features.enum.js';
 import { User } from './user.type';
 
 export type RentalOffer = {
@@ -10,7 +10,7 @@ export type RentalOffer = {
 	createdDate: Date;
 	city: CityEnum;
 	previewImage: string;
-	photos: string[];
+  photos: string[];
 	isPremium: boolean;
 	isFavorite: boolean;
 	type: HousingType;
@@ -18,10 +18,8 @@ export type RentalOffer = {
 	rooms: number;
 	guests: number;
 	price: number;
-	features: OfferFeatures[];
-	author: User;
-	coordinates: {
-		latitude: number;
-		longitude: number;
-	};
+  features: OfferFeatures[];
+  author: User;
+  latitude: number;
+  longitude: number;
 }
