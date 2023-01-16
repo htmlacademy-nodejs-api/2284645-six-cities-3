@@ -1,0 +1,407 @@
+openapi: 3.0.0
+info:
+  title: Спецификация запросов для API сайта "Шесть городов"
+  description: |-
+    * Пути запросов и компоненты для работы с API
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 2.0.0
+tags:
+  - name: rentaloffers
+    description: Действия с объявлениями.
+  - name: comments
+    description: Действия с комментариями.
+  - name: users
+    description: Действия с пользователем.
+paths:
+
+  # Предложения по аренде
+  /offers:
+    get:
+      tags:
+        - rentaloffers
+      summary: Получение списка предложений по аренде
+      parameters: [ $ref: '#/components/parameters/isPremium', $ref: '#/components/parameters/isFavorite' ]
+      responses:
+        "201":
+          description: Пользователь зарегистрирован. Объект пользователя.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offers'
+    post:
+      tags:
+        - rentaloffers
+      summary: Создание нового предложения
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createOffer'
+        required: true
+      responses:
+        "201":
+          description: Предложение создано.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offer'
+        "409":
+          description: Предложение уже существует.
+  /offers/{id}:
+    parameters: [ $ref: '#/components/parameters/id' ]
+    get:
+      tags:
+        - rentaloffers
+      summary: Получение детальной информации о предложении
+      responses:
+        "201":
+          description: Информация о предложении получена.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offer'
+        "404":
+          description: Такого предложения не существует.
+    put:
+      tags:
+        - rentaloffers
+      summary: Редактирование предложения
+      requestBody:
+        description: Информация для создания нового пользователя.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/updateOffer'
+        required: true
+      responses:
+        "201":
+          description: Предложение обновлено.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offer'
+        "404":
+          description: Такого предложения не существует.
+    delete:
+      tags:
+        - rentaloffers
+      summary: Удаление предложения
+      responses:
+        "201":
+          description: Предложение удалено.
+        "404":
+          description: Такого предложения не существует.
+
+  # Комментарии
+  /offers/{id}/comments:
+    parameters: [ $ref: '#/components/parameters/id' ]
+    get:
+      tags:
+        - comments
+      summary: Получение списка комментариев для предложения
+      responses:
+        "201":
+          description: Комментарии получены.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/comments'
+        "404":
+          description: Такого предложения не существует.
+    post:
+      tags:
+        - comments
+      summary: Добавление комментария для предложения
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createComment'
+        required: true
+      responses:
+        "201":
+          description: Комментарий создан.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/comment'
+        "404":
+          description: Такого предложения не существует.
+
+  # Пользователи
+  /users/register:
+    post:
+      tags:
+        - users
+      summary: Регистрация пользователя
+      description: Регистрирует нового пользователя.
+      requestBody:
+        description: Информация для создания нового пользователя.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createUser'
+        required: true
+      responses:
+        "201":
+          description: Пользователь зарегистрирован. Объект пользователя.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        "409":
+          description: Пользователь с таким email уже существует.
+  /users/login:
+    get:
+      tags:
+        - users
+      summary: Проверка состояния пользователя
+      description: Возвращает информацию по авторизованному пользователю
+      responses:
+        "201":
+          description: Пользователь зарегистрирован. Объект пользователя.
+    post:
+      tags:
+        - users
+      summary: Авторизация пользователя
+      description: Авторизует пользователя на основе логина и пароля
+      requestBody:
+        description: Информация для авторизации пользователя.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/loginUser'
+      responses:
+        "201":
+          description: Пользователь зарегистрирован. Объект пользователя.
+        "404":
+          description: Такого пользователя не существует.
+  /users/{id}/avatar:
+    parameters: [ $ref: '#/components/parameters/id' ]
+    post:
+      tags:
+        - users
+      summary: Загрузить изображение аватара
+      description: Загружает изображение аватара пользователя. Изображение
+        аватара должно быть в формате `png` или `jpg`.
+      responses:
+        "201":
+          description: Пользователь зарегистрирован. Объект пользователя.
+        "404":
+          description: Такого пользователя не существует.
+
+components:
+  parameters:
+    isPremium:
+      name: 'premium'
+      description: 'Показывать только премиум-предложения'
+      in: 'query'
+      schema:
+        type: 'boolean'
+    isFavorite:
+      name: 'favorite'
+      description: 'Показывать только избранные предложения'
+      in: 'query'
+      schema:
+        type: 'boolean'
+    id:
+      name: 'id'
+      in: path
+      required: true
+      schema:
+        type: string
+  schemas:
+
+    # Вспомогательные схемы
+    photosArray:
+      type: array
+      items:
+        type: string
+        example: "itemImage.png"
+    featuresArray:
+      type: array
+      items:
+        type: string
+      example: ["Breakfast", "Air conditioning", "Laptop friendly workspace", "Baby seat", "Washer", "Towels", "Fridge"]
+
+    # Основные схемы для запросов
+    offer:
+      type: object
+      properties:
+        id:
+          type: string
+          example: a313c3d6a15ac1022c6115ba
+        name:
+          type: string
+          example: Luxury apartment
+        description:
+          type: string
+          example: Small apartment in the center of the city
+        city:
+          type: string
+          example: Cologne
+        previewImage:
+          type: string
+          example: "prevImage01.png"
+        photos:
+          $ref: '#/components/schemas/photosArray'
+        isPremium:
+          type: boolean
+          example: true
+        isFavorite:
+          type: boolean
+          example: false
+        rating:
+          type: number
+          example: 4
+        type:
+          type: string
+          example: apartment
+        rooms:
+          type: number
+          example: 3
+        guests:
+          type: number
+          example: 5
+        price:
+          type: number
+          example: 250
+        features:
+          $ref: '#/components/schemas/featuresArray'
+        author:
+          $ref: '#/components/schemas/user'
+        commentCount:
+          type: number
+          example: 10
+        latitude:
+          type: number
+          example: 15.100
+        longtitude:
+          type: number
+          example: 20.600
+    offers:
+      type: array
+      items:
+        $ref: '#/components/schemas/offer'
+    createOffer:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Luxury apartment
+        description:
+          type: string
+          example: Small apartment in the center of the city
+        city:
+          type: string
+          example: Cologne
+        previewImage:
+          type: string
+          example: "prevImage01.png"
+        photos:
+          $ref: '#/components/schemas/photosArray'
+        isPremium:
+          type: boolean
+          example: true
+        rating:
+          type: number
+          example: 4
+        type:
+          type: string
+          example: apartment
+        rooms:
+          type: number
+          example: 3
+        guests:
+          type: number
+          example: 5
+        price:
+          type: number
+          example: 250
+        features:
+          $ref: '#/components/schemas/featuresArray'
+        coordinates:
+          type: object
+          properties:
+            latitude:
+              type: number
+              example: 15.100
+            longitude:
+              type: number
+              example: 20.600
+    updateOffer:
+      type: object
+      properties:
+      $ref: '#/components/schemas/createOffer'
+
+    comment:
+      type: object
+      properties:
+        id:
+          type: string
+          example: a313c3d6a15ac1022c6115ba
+        text:
+          type: string
+          example: Looks very good, but has problems with cleanup
+        createdDate:
+          type: string
+          example: 2021-10-10T10:10:10.000Z
+        rating:
+          type: number
+          example: 3
+        author:
+          $ref: '#/components/schemas/user'
+    comments:
+      type: array
+      items:
+        $ref: '#/components/schemas/comment'
+    createComment:
+      type: object
+      properties:
+        text:
+          type: string
+          example: 27user@pm.me
+        author:
+          $ref: '#/components/schemas/user'
+
+    user:
+      type: object
+      properties:
+        id:
+          type: string
+          example: a313c3d6a15ac1022c6115ba
+        name:
+          type: string
+          example: Alexander
+        email:
+          type: string
+          example: 27user@pm.me
+        avatar:
+          type: string
+          example: avatar.png
+        type:
+          type: string
+          example: обычный
+    createUser:
+      type: object
+      properties:
+        email:
+          type: string
+          example: 27user@pm.me
+        name:
+          type: string
+          example: Alexander
+        password:
+          type: string
+          example: "*userpassword2021"
+    loginUser:
+      type: object
+      properties:
+        email:
+          type: string
+          example: 27user@pm.me
+        password:
+          type: string
+          example: "*userpassword2021"
