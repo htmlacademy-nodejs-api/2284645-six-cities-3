@@ -1,6 +1,5 @@
-export default class CreateCommentDto {
+export class CreateCommentDto {
   public text!: string;
-  public createdDate!: Date;
-  public rating!: string;
   public authorId!: string;
+  public offerId!: string;
 }
