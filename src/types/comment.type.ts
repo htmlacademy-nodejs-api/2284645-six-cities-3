@@ -1,3 +1,4 @@
+import { RentalOffer } from './rental-offer.type';
 import { User } from './user.type';
 
 export type Comment = {
@@ -5,4 +6,5 @@ export type Comment = {
     createdDate: Date;
     rating: number;
     author: User;
+  offer: RentalOffer;
 }
