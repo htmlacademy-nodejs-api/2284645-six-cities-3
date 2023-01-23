@@ -1,9 +1,10 @@
 import { Container } from 'inversify';
 import { types } from '@typegoose/typegoose';
 import { Component } from '../../types/component.type.js';
-import { CommentEntity, CommentModel } from './comment.entity.js';
+import { CommentEntity } from './comment.entity.js';
 import { CommentServiceInterface } from './comment.interface.js';
 import CommentService from './comment.service.js';
+import { CommentModel } from '../models.js';
 
 const commentContainer = new Container();
 

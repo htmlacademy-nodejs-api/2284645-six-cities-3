@@ -10,9 +10,7 @@ export class CreateRentalOfferDto {
   public previewImage!: string;
   public photos!: string[];
   public isPremium!: boolean;
-  public isFavorite!: boolean;
   public type!: HousingType;
-  public rating!: number;
   public rooms!: number;
   public guests!: number;
   public price!: number;
@@ -30,7 +28,6 @@ export class UpdateRentalOfferDto {
   public photos!: string[];
   public isPremium!: boolean;
   public type!: HousingType;
-  public rating!: number;
   public rooms!: number;
   public guests!: number;
   public price!: number;

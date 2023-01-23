@@ -8,8 +8,7 @@ export interface RentalOfferServiceInterface {
   findRecent(limit: number): Promise<DocumentType<RentalOfferEntity>[] | null>;
   findHot(limit: number): Promise<DocumentType<RentalOfferEntity>[] | null>;
   findPremium(limit: number): Promise<DocumentType<RentalOfferEntity>[] | null>;
-  // Will be implemented when we have a user service
-  // findFavorite(): Promise<DocumentType<RentalOfferEntity>[] | null>;
+  findFavorites(userId: string): Promise<DocumentType<RentalOfferEntity>[] | null>;
   findById(offerId: string): Promise<DocumentType<RentalOfferEntity> | null>;
   updateById(offerId: string, dto: UpdateRentalOfferDto): Promise<DocumentType<RentalOfferEntity> | null>;
   deleteById(offerId: string): Promise<DocumentType<RentalOfferEntity> | null>;

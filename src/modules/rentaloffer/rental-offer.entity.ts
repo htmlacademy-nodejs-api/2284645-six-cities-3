@@ -1,4 +1,4 @@
-import typegoose, { defaultClasses, getModelForClass, Ref } from '@typegoose/typegoose';
+import typegoose, { defaultClasses, Ref } from '@typegoose/typegoose';
 import { CityNamesEnum } from '../../types/cities.js';
 import { HousingType, housingTypes } from '../../types/enums/housing-type.enum.js';
 import { OfferFeatures } from '../../types/enums/offer-features.enum.js';
@@ -10,7 +10,7 @@ export interface RentalOfferEntity extends defaultClasses.Base { }
 
 @modelOptions({
   schemaOptions: {
-    collection: 'rentaloffers'
+    collection: 'rentaloffers',
   }
 })
 export class RentalOfferEntity extends defaultClasses.TimeStamps {
@@ -35,13 +35,10 @@ export class RentalOfferEntity extends defaultClasses.TimeStamps {
   @prop({ required: true })
   public isPremium!: boolean;
 
-  @prop({ required: true })
-  public isFavorite!: boolean;
-
   @prop({ enum: housingTypes, required: true })
   public type!: HousingType;
 
-  @prop({ required: true, min: 1, max: 5 })
+  @prop({ default: 1, required: true, min: 1, max: 5 })
   public rating!: number;
 
   @prop({ required: true, min: 1, max: 8 })
@@ -60,7 +57,7 @@ export class RentalOfferEntity extends defaultClasses.TimeStamps {
   public commentCount!: number;
 
   @prop({
-    ref: UserEntity,
+    ref: () => UserEntity,
     required: true,
     _id: false
   })
@@ -72,5 +69,3 @@ export class RentalOfferEntity extends defaultClasses.TimeStamps {
   @prop({ required: true, default: 0 })
   public longtitude!: number;
 }
-
-export const RentalOfferModel = getModelForClass(RentalOfferEntity);
