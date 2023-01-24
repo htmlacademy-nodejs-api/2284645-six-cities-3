@@ -4,6 +4,8 @@ import { ConfigInterface } from '../utils/config/config.interface.js';
 import ConfigService from '../utils/config/config.service.js';
 import { DatabaseInterface } from '../utils/database/database.interface.js';
 import DatabaseService from '../utils/database/database.service.js';
+import { ExceptionFilterInterface } from '../utils/errors/exception-filter.interface.js';
+import ExceptionFilter from '../utils/errors/exception-filter.js';
 import { LoggerInterface } from '../utils/logger/logger.interface.js';
 import LoggerService from '../utils/logger/logger.service.js';
 import Application from './application.js';
@@ -14,5 +16,6 @@ applicationContainer.bind<Application>(Component.Application).to(Application).in
 applicationContainer.bind<LoggerInterface>(Component.LoggerInterface).to(LoggerService).inSingletonScope();
 applicationContainer.bind<ConfigInterface>(Component.ConfigInterface).to(ConfigService).inSingletonScope();
 applicationContainer.bind<DatabaseInterface>(Component.DatabaseInterface).to(DatabaseService).inSingletonScope();
+applicationContainer.bind<ExceptionFilterInterface>(Component.ExceptionFilterInterface).to(ExceptionFilter).inSingletonScope();
 
 export { applicationContainer };

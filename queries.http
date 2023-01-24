@@ -2,3 +2,91 @@
 GET http://localhost:3123/api HTTP/1.1
 
 ###
+
+# Предложения
+
+## Получить список предложений
+GET http://localhost:25569/offers HTTP/1.1
+Content-Type: application/json
+###
+
+## Получить список премиум предложений
+GET http://localhost:25569/offers/premium HTTP/1.1
+Content-Type: application/json
+###
+
+## Получить подробную информацию о предложении
+GET http://localhost:25569/offers/63be0bd28959801d36b011fd HTTP/1.1
+Content-Type: application/json
+###
+
+## Создать новое предложение
+POST http://localhost:25569/offers HTTP/1.1
+Content-Type: application/json
+
+{
+  "authorId": "63be0bd28959801d36b01200",
+  "price": "250",
+  "guests": 2,
+  "rooms": 3,
+  "type": "house",
+  "isPremium": false,
+  "previewImage": "prevtorans.png",
+  "city": "Paris",
+  "createdDate": "2020-12-01T12:00:00.000Z",
+  "description": "Test item, please ignore it",
+  "name": "Beautiful & luxurious apartment at great location"
+}
+###
+
+## Обновить информацию о предложении
+PATCH http://localhost:25569/offers/63be0bd28959801d36b011fd HTTP/1.1
+Content-Type: application/json
+
+{
+  "price": "110",
+  "guests": 1,
+  "rooms": 6,
+  "previewImage": "prevtorans.png",
+  "city": "Paris"
+}
+###
+
+## Удалить предложение
+DELETE http://localhost:25569/offers/63ce603399c53589a57ba1f8 HTTP/1.1
+Content-Type: application/json
+###
+
+# Пользователи
+
+## Регистрация пользователя
+POST http://localhost:25569/users/register HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "27rogi@pm.meme",
+  "avatar": "useravatar.jpg",
+  "name": "Igor",
+  "password": "igor2023"
+}
+###
+
+## Авторизация пользователя (неправильный пароль)
+POST http://localhost:25569/users/login HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "27rogi@pm.meme",
+  "password": "125232212"
+}
+###
+
+## Авторизация пользователя (правильный пароль)
+POST http://localhost:25569/users/login HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "27rogi@pm.meme",
+  "password": "igor2023"
+}
+###

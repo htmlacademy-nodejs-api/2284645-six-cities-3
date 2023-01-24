@@ -7,8 +7,6 @@ import { UserServiceInterface } from '../modules/user/user-service.interface.js'
 
 import UserService from '../modules/user/user.service.js';
 
-import { UserModel } from '../modules/user/user.entity.js';
-import { RentalOfferModel } from '../modules/rentaloffer/rental-offer.entity.js';
 import { RentalOfferServiceInterface } from '../modules/rentaloffer/rental-offer.interface.js';
 import RentalOfferService from '../modules/rentaloffer/rental-offer.service.js';
 import { RentalOffer } from '../types/rental-offer.type.js';
@@ -18,11 +16,14 @@ import TSVFileReader from '../utils/file-reader/tsv-file-reader.js';
 import { LoggerInterface } from '../utils/logger/logger.interface.js';
 import ConsoleLoggerService from '../utils/logger/console-logger.service.js';
 import { getRandomValue } from '../utils/random.js';
+import { RentalOfferModel, UserModel } from '../modules/models.js';
+import { CommentServiceInterface } from '../modules/comment/comment.interface.js';
 
 export default class ImportCommand implements CliCommandInterface {
   public readonly name = '--import';
   private userService!: UserServiceInterface;
   private rentalOfferService!: RentalOfferServiceInterface;
+  private commentService!: CommentServiceInterface;
   private databaseService!: DatabaseInterface;
   private logger: LoggerInterface;
   private salt!: string;
@@ -32,7 +33,7 @@ export default class ImportCommand implements CliCommandInterface {
     this.onComplete = this.onComplete.bind(this);
 
     this.logger = new ConsoleLoggerService();
-    this.rentalOfferService = new RentalOfferService(this.logger, RentalOfferModel);
+    this.rentalOfferService = new RentalOfferService(this.logger, RentalOfferModel, this.commentService);
     this.userService = new UserService(this.logger, UserModel);
     this.databaseService = new DatabaseService(this.logger);
   }

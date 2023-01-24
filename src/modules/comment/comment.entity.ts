@@ -1,5 +1,5 @@
 
-import typegoose, { getModelForClass, defaultClasses, Ref } from '@typegoose/typegoose';
+import typegoose, { defaultClasses, Ref } from '@typegoose/typegoose';
 import { RentalOfferEntity } from '../rentaloffer/rental-offer.entity.js';
 import { UserEntity } from '../user/user.entity.js';
 
@@ -19,7 +19,7 @@ export class CommentEntity extends defaultClasses.TimeStamps {
   @prop({ required: true })
   public createdDate!: Date;
 
-  @prop({ required: true, min: 1, max: 5 })
+  @prop({ default: 1, required: true, min: 1, max: 5 })
   public rating!: number;
 
   @prop({
@@ -36,5 +36,3 @@ export class CommentEntity extends defaultClasses.TimeStamps {
   })
   public offerId!: Ref<RentalOfferEntity>;
 }
-
-export const CommentModel = getModelForClass(CommentEntity);
