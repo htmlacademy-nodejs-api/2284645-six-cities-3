@@ -19,7 +19,7 @@ export default class RentalOfferController extends Controller {
   ) {
     super(logger);
 
-    this.addRoute({ path: '/', method: HttpMethod.Get, handler: this.getAll });
+    this.addRoute({ path: '/', method: HttpMethod.Get, handler: this.index });
     this.addRoute({ path: '/premium', method: HttpMethod.Get, handler: this.getPremium });
 
     this.addRoute({ path: '/', method: HttpMethod.Post, handler: this.create });
@@ -28,7 +28,7 @@ export default class RentalOfferController extends Controller {
     this.addRoute({ path: '/:id', method: HttpMethod.Delete, handler: this.delete });
   }
 
-  public async getAll(
+  public async index(
     _req: Request,
     res: Response,
   ): Promise<void> {

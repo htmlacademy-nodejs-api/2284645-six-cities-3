@@ -65,4 +65,9 @@ export default class RentalOfferService implements RentalOfferServiceInterface {
   public async increaseCommentCount(offerId: string): Promise<DocumentType<RentalOfferEntity, types.BeAnObject> | null> {
     return this.offerModel.findByIdAndUpdate(offerId, { '$inc': { 'commentCount': 1 } }, { new: true }).exec();
   }
+
+  public async exists(documentId: string): Promise<boolean> {
+    return (await this.offerModel
+      .exists({ _id: documentId })) !== null;
+  }
 }
