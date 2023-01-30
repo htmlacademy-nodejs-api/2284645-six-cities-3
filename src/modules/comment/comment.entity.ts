@@ -16,9 +16,6 @@ export class CommentEntity extends defaultClasses.TimeStamps {
   @prop({ minlength: 5, maxlength: 1024, required: true })
   public text!: string;
 
-  @prop({ required: true })
-  public createdDate!: Date;
-
   @prop({ default: 1, required: true, min: 1, max: 5 })
   public rating!: number;
 

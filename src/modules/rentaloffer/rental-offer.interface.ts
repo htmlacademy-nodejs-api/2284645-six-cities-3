@@ -13,4 +13,5 @@ export interface RentalOfferServiceInterface {
   updateById(offerId: string, dto: UpdateRentalOfferDto): Promise<DocumentType<RentalOfferEntity> | null>;
   deleteById(offerId: string): Promise<DocumentType<RentalOfferEntity> | null>;
   increaseCommentCount(offerId: string): Promise<DocumentType<RentalOfferEntity> | null>;
+  exists(documentId: string): Promise<boolean>;
 }
