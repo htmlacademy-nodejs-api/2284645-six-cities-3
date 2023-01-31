@@ -11,6 +11,7 @@ export type ConfigSchema = {
   DB_PASSWORD: string;
   DB_PORT: number;
   DB_NAME: string;
+  STATIC_FOLDER: string;
 }
 
 export const configSchema = convict<ConfigSchema>({
@@ -55,5 +56,11 @@ export const configSchema = convict<ConfigSchema>({
     format: String,
     env: 'DB_NAME',
     default: 'igor-six-cities'
+  },
+  STATIC_FOLDER: {
+    doc: 'Folder for uploaded images and other static files',
+    format: String,
+    env: 'STATIC_FOLDER',
+    default: 'static'
   }
 });

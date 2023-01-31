@@ -1,8 +1,8 @@
-import { Expose, Transform } from 'class-transformer';
-import { Types } from 'mongoose';
+import { Expose, Type } from 'class-transformer';
 import { CityEnum } from '../../types/cities.js';
 import { HousingType } from '../../types/enums/housing-type.enum.js';
 import { OfferFeatures } from '../../types/enums/offer-features.enum.js';
+import UserResponse from '../user/user.response.js';
 
 export class RentalOfferListResponse {
   @Expose()
@@ -35,14 +35,9 @@ export class RentalOfferListResponse {
   @Expose()
   public commentCount!: number;
 
-  @Expose()
-  @Transform((value) => {
-    if ('value' in value) {
-      return value.obj[value.key];
-    }
-    return 'unknown value';
-  })
-  public authorId!: Types.ObjectId;
+  @Expose({ name: 'authorId' })
+  @Type(() => UserResponse)
+  public user!: UserResponse;
 }
 
 export class RentalOfferFullResponse {
@@ -76,14 +71,9 @@ export class RentalOfferFullResponse {
   @Expose()
   public commentCount!: number;
 
-  @Expose()
-  @Transform((value) => {
-    if ('value' in value) {
-      return value.obj[value.key];
-    }
-    return 'unknown value';
-  })
-  public authorId!: Types.ObjectId;
+  @Expose({ name: 'authorId' })
+  @Type(() => UserResponse)
+  public user!: UserResponse;
 
   @Expose()
   public description!: string;

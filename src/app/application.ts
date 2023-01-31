@@ -33,6 +33,7 @@ export default class Application {
 
   public initMiddleware() {
     this.expressApp.use(express.json());
+    this.expressApp.use('/static', express.static(this.config.get('STATIC_FOLDER')));
   }
 
   public initExceptionFilters() {

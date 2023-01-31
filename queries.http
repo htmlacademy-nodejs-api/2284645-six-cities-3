@@ -20,13 +20,18 @@ GET http://localhost:25569/offers/63be0bd28959801d36b011fd HTTP/1.1
 Content-Type: application/json
 ###
 
+## Получить коментарии к предложению
+GET http://localhost:25569/offers/63be0bd28959801d36b011fd/comments HTTP/1.1
+Content-Type: application/json
+###
+
 ## Создать новое предложение
 POST http://localhost:25569/offers HTTP/1.1
 Content-Type: application/json
 
 {
   "authorId": "63be0bd28959801d36b01200",
-  "price": "250",
+  "price": 250,
   "guests": 2,
   "rooms": 3,
   "type": "house",
@@ -35,7 +40,13 @@ Content-Type: application/json
   "city": "Paris",
   "createdDate": "2020-12-01T12:00:00.000Z",
   "description": "Test item, please ignore it",
-  "name": "Beautiful & luxurious apartment at great location"
+  "name": "Beautiful & luxurious apartment at great location",
+  "photos": [
+    "img/apartment-01.jpg",
+    "img/apartment-02.jpg",
+    "img/apartment-03.jpg"
+  ],
+  "features": ["Breakfast"]
 }
 ###
 
@@ -44,11 +55,11 @@ PATCH http://localhost:25569/offers/63be0bd28959801d36b011fd HTTP/1.1
 Content-Type: application/json
 
 {
-  "price": "110",
+  "price": 110,
   "guests": 1,
   "rooms": 6,
   "previewImage": "prevtorans.png",
-  "city": "Paris"
+  "city": "Cologne"
 }
 ###
 
@@ -102,4 +113,24 @@ Content-Type: application/json
   "email": "27rogi@pm.meme",
   "password": "igor2023"
 }
+###
+
+## Отправка аватарки пользователю
+
+POST http://localhost:25569/users/63ce6370734aae580967a030/avatar HTTP/1.1
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7b3QIGORwsO6SsYd
+
+------WebKitFormBoundary7b3QIGORwsO6SsYd
+Content-Disposition: form-data; name="avatar"; filename="avatarexample.jpg"
+Content-Type: image/png
+
+< /home/rogi27/Загрузки/avatarexample.jpg
+------WebKitFormBoundary7b3QIGORwsO6SsYd--
+###
+
+# Дополнительные запросы
+
+## Получить изображение из статичной папки
+GET http://localhost:25569/static/avatar.png HTTP/1.1
+Content-Type: application/json
 ###
