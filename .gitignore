@@ -11,4 +11,5 @@ coverage
 *.log
 *.env
 mocks/test.tsv
-/mongodb
+/mongodb/
+/static/

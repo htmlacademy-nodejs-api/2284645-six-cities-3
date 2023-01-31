@@ -25,7 +25,7 @@ export default class RentalOfferService implements RentalOfferServiceInterface {
   }
 
   public async find(): Promise<DocumentType<RentalOfferEntity, types.BeAnObject>[] | null> {
-    return this.offerModel.find().exec();
+    return this.offerModel.find().populate(['authorId']).exec();
   }
 
   public async findRecent(limit: number): Promise<DocumentType<RentalOfferEntity, types.BeAnObject>[] | null> {
@@ -41,11 +41,11 @@ export default class RentalOfferService implements RentalOfferServiceInterface {
   }
 
   public async findFavorites(userId: string): Promise<DocumentType<RentalOfferEntity, types.BeAnObject>[] | null> {
-    const favsArray = await this.userModel.findById(userId).select('favoriteOffers').exec();
+    const favsArray = await this.userModel.findById(userId).select('favoriteOffers').populate(['authorId']).exec();
     if (!favsArray) {
       return null;
     }
-    return this.offerModel.find({ _id: { $in: favsArray.favoriteOffers } }).populate(['authorId']).exec();
+    return this.offerModel.find({ _id: { $in: favsArray.favoriteOffers } }).exec();
   }
 
   public async findById(offerId: string): Promise<DocumentType<RentalOfferEntity> | null> {

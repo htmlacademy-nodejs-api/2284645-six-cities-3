@@ -11,6 +11,9 @@ import HttpError from '../../utils/errors/http-error.js';
 import { LoggerInterface } from '../../utils/logger/logger.interface.js';
 import { CreateUserDto, LoginUserDto } from './dto/user.dto.js';
 import UserResponse from './user.response.js';
+import { ValidateDtoMiddleware } from '../../utils/middlewares/dto.middleware.js';
+import { ValidateObjectIdMiddleware } from '../../utils/middlewares/objectid.middleware.js';
+import { UploadFileMiddleware } from '../../utils/middlewares/upload.middleware.js';
 
 
 @injectable()
@@ -22,8 +25,27 @@ export default class UserController extends Controller {
   ) {
     super(logger);
 
-    this.addRoute({ path: '/register', method: HttpMethod.Post, handler: this.create });
-    this.addRoute({ path: '/login', method: HttpMethod.Post, handler: this.login });
+    this.addRoute({
+      path: '/register',
+      method: HttpMethod.Post,
+      handler: this.create,
+      middlewares: [new ValidateDtoMiddleware(CreateUserDto)]
+    });
+    this.addRoute({
+      path: '/login',
+      method: HttpMethod.Post,
+      handler: this.login,
+      middlewares: [new ValidateDtoMiddleware(LoginUserDto)]
+    });
+    this.addRoute({
+      path: '/:id/avatar',
+      method: HttpMethod.Post,
+      handler: this.uploadAvatar,
+      middlewares: [
+        new ValidateObjectIdMiddleware('id'),
+        new UploadFileMiddleware(`${this.configService.get('STATIC_FOLDER')}/avatars`, 'avatar')
+      ]
+    });
   }
 
   public async create(
@@ -41,16 +63,14 @@ export default class UserController extends Controller {
     }
 
     const result = await this.userService.create(body, this.configService.get('SALT'));
-    this.send(
+    this.created(
       res,
-      StatusCodes.CREATED,
       fillDTO(UserResponse, result)
     );
   }
 
   public async login(
     { body }: Request<Record<string, unknown>, Record<string, unknown>, LoginUserDto>,
-    _res: Response,
   ): Promise<void> {
     const existsUser = await this.userService.findByEmail(body.email);
 
@@ -67,5 +87,11 @@ export default class UserController extends Controller {
       'Not implemented',
       'UserController',
     );
+  }
+
+  public async uploadAvatar(req: Request, res: Response): Promise<void> {
+    this.created(res, {
+      filepath: req.file?.path,
+    });
   }
 }
