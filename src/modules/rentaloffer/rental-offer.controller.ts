@@ -13,9 +13,9 @@ import { RentalOfferListResponse, RentalOfferFullResponse } from './rental-offer
 import { CommentServiceInterface } from '../comment/comment.interface.js';
 import { DocumentExistsMiddleware } from '../../utils/middlewares/document-exists.middleware.js';
 import { ValidateObjectIdMiddleware } from '../../utils/middlewares/objectid.middleware.js';
-import { DEFAULT_HOT_OFFERS_LIMIT, DEFAULT_NEW_OFFERS_LIMIT } from './rental-offer.constant.js';
 import { CommentResponse } from '../comment/comment.response.js';
 import { ValidateDtoMiddleware } from '../../utils/middlewares/dto.middleware.js';
+import { rentalOfferConstants } from './rental-offer.constant.js';
 
 @injectable()
 export default class RentalOfferController extends Controller {
@@ -85,7 +85,7 @@ export default class RentalOfferController extends Controller {
   }
 
   public async getRecent(_req: Request, res: Response): Promise<void> {
-    const result = await this.rentalOfferService.findRecent(DEFAULT_NEW_OFFERS_LIMIT);
+    const result = await this.rentalOfferService.findRecent(rentalOfferConstants.DEFAULT_NEW_OFFERS_LIMIT);
     this.ok(
       res,
       fillDTO(RentalOfferListResponse, result)
@@ -93,7 +93,7 @@ export default class RentalOfferController extends Controller {
   }
 
   public async getHot(_req: Request, res: Response): Promise<void> {
-    const result = await this.rentalOfferService.findHot(DEFAULT_HOT_OFFERS_LIMIT);
+    const result = await this.rentalOfferService.findHot(rentalOfferConstants.DEFAULT_HOT_OFFERS_LIMIT);
     this.ok(
       res,
       fillDTO(RentalOfferListResponse, result)
