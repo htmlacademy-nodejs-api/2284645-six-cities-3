@@ -1,6 +1,7 @@
-import { Expose } from 'class-transformer';
+import { Expose, Transform } from 'class-transformer';
+import { Types } from 'mongoose';
 
-export default class UserResponse {
+export class UserResponse {
   @Expose()
   public name!: string;
 
@@ -9,4 +10,21 @@ export default class UserResponse {
 
   @Expose()
   public avatar!: string;
+
+  @Expose()
+  @Transform((value) => {
+    if ('value' in value) {
+      return value.obj[value.key];
+    }
+    return 'unknown value';
+  })
+  public favoriteOffers!: Types.ObjectId[];
+}
+
+export class TokenUserResponse {
+  @Expose()
+  public email!: string;
+
+  @Expose()
+  public token!: string;
 }

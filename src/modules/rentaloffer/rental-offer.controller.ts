@@ -16,26 +16,42 @@ import { ValidateObjectIdMiddleware } from '../../utils/middlewares/objectid.mid
 import { CommentResponse } from '../comment/comment.response.js';
 import { ValidateDtoMiddleware } from '../../utils/middlewares/dto.middleware.js';
 import { rentalOfferConstants } from './rental-offer.constant.js';
+import { UserServiceInterface } from '../user/user-service.interface.js';
+import { UserResponse } from '../user/user.response.js';
+import { ProtectedMiddleware } from '../../utils/middlewares/protected.middleware.js';
+import { cities, CityEnum } from '../../types/cities.js';
 
 @injectable()
 export default class RentalOfferController extends Controller {
   constructor(
     @inject(Component.LoggerInterface) logger: LoggerInterface,
     @inject(Component.RentalOfferServiceInterface) private readonly rentalOfferService: RentalOfferServiceInterface,
-    @inject(Component.CommentServiceInterface) private readonly commentService: CommentServiceInterface
+    @inject(Component.CommentServiceInterface) private readonly commentService: CommentServiceInterface,
+    @inject(Component.UserServiceInterface) private readonly userService: UserServiceInterface
   ) {
     super(logger);
 
     this.addRoute({ path: '/', method: HttpMethod.Get, handler: this.index });
     this.addRoute({ path: '/new', method: HttpMethod.Get, handler: this.getRecent });
     this.addRoute({ path: '/hot', method: HttpMethod.Get, handler: this.getHot });
-    this.addRoute({ path: '/premium', method: HttpMethod.Get, handler: this.getPremium });
+    this.addRoute({ path: '/:city', method: HttpMethod.Get, handler: this.getPremiumByCity });
+    this.addRoute({
+      path: '/favorites',
+      method: HttpMethod.Get,
+      handler: this.getFavorites,
+      middlewares: [
+        new ProtectedMiddleware(),
+      ]
+    });
 
     this.addRoute({
       path: '/',
       method: HttpMethod.Post,
       handler: this.create,
-      middlewares: [new ValidateDtoMiddleware(CreateRentalOfferDto)]
+      middlewares: [
+        new ProtectedMiddleware(),
+        new ValidateDtoMiddleware(CreateRentalOfferDto),
+      ]
     });
     this.addRoute({
       path: '/:id',
@@ -51,6 +67,7 @@ export default class RentalOfferController extends Controller {
       method: HttpMethod.Patch,
       handler: this.update,
       middlewares: [
+        new ProtectedMiddleware(),
         new ValidateObjectIdMiddleware('id'),
         new ValidateDtoMiddleware(UpdateRentalOfferDto),
         new DocumentExistsMiddleware(this.rentalOfferService, 'RentalOffer', 'id'),
@@ -61,6 +78,7 @@ export default class RentalOfferController extends Controller {
       method: HttpMethod.Delete,
       handler: this.delete,
       middlewares: [
+        new ProtectedMiddleware(),
         new ValidateObjectIdMiddleware('id'),
         new DocumentExistsMiddleware(this.rentalOfferService, 'RentalOffer', 'id'),
       ]
@@ -74,34 +92,76 @@ export default class RentalOfferController extends Controller {
         new DocumentExistsMiddleware(this.rentalOfferService, 'RentalOffer', 'id'),
       ]
     });
+    this.addRoute({
+      path: '/:id/favorite',
+      method: HttpMethod.Post,
+      handler: this.favorite,
+      middlewares: [
+        new ProtectedMiddleware(),
+        new ValidateObjectIdMiddleware('id'),
+        new DocumentExistsMiddleware(this.rentalOfferService, 'RentalOffer', 'id'),
+      ]
+    });
   }
 
-  public async index(_req: Request, res: Response): Promise<void> {
-    const result = await this.rentalOfferService.find();
+  public async index(req: Request, res: Response): Promise<void> {
+    let user = null;
+    if (req.user) {
+      user = await this.userService.findByEmail(req.user.email);
+    }
+    const result = await this.rentalOfferService.find(user);
     this.ok(
       res,
       fillDTO(RentalOfferListResponse, result)
     );
   }
 
-  public async getRecent(_req: Request, res: Response): Promise<void> {
-    const result = await this.rentalOfferService.findRecent(rentalOfferConstants.DEFAULT_NEW_OFFERS_LIMIT);
+  public async getRecent(req: Request, res: Response): Promise<void> {
+    let user = null;
+    if (req.user) {
+      user = await this.userService.findByEmail(req.user.email);
+    }
+    const result = await this.rentalOfferService.findRecent(rentalOfferConstants.DEFAULT_NEW_OFFERS_LIMIT, user);
     this.ok(
       res,
       fillDTO(RentalOfferListResponse, result)
     );
   }
 
-  public async getHot(_req: Request, res: Response): Promise<void> {
-    const result = await this.rentalOfferService.findHot(rentalOfferConstants.DEFAULT_HOT_OFFERS_LIMIT);
+  public async getHot(req: Request, res: Response): Promise<void> {
+    let user = null;
+    if (req.user) {
+      user = await this.userService.findByEmail(req.user.email);
+    }
+    const result = await this.rentalOfferService.findHot(rentalOfferConstants.DEFAULT_HOT_OFFERS_LIMIT, user);
     this.ok(
       res,
       fillDTO(RentalOfferListResponse, result)
     );
   }
 
-  public async getPremium(_req: Request, res: Response): Promise<void> {
-    const result = await this.rentalOfferService.findPremium(3);
+  public async getPremiumByCity(req: Request, res: Response): Promise<void> {
+    const city = req.params.city;
+    if (Object.keys(cities).indexOf(city) === -1) {
+      throw new HttpError(
+        StatusCodes.NOT_FOUND,
+        `RentalOffer with id ${req.params.id} not found.`,
+        'RentalOfferController',
+      );
+    }
+    let user = null;
+    if (req.user) {
+      user = await this.userService.findByEmail(req.user.email);
+    }
+    const result = await this.rentalOfferService.findPremiumByCity(<CityEnum>city, 3, user);
+    this.ok(
+      res,
+      fillDTO(RentalOfferListResponse, result)
+    );
+  }
+
+  public async getFavorites(req: Request, res: Response): Promise<void> {
+    const result = await this.rentalOfferService.findFavorites(req.user.id);
     this.ok(
       res,
       fillDTO(RentalOfferListResponse, result)
@@ -126,7 +186,11 @@ export default class RentalOfferController extends Controller {
       );
     }
 
-    const result = await this.rentalOfferService.findById(req.params.id);
+    let user = null;
+    if (req.user) {
+      user = await this.userService.findByEmail(req.user.email);
+    }
+    const result = await this.rentalOfferService.findById(req.params.id, user);
     this.ok(
       res,
       fillDTO(RentalOfferFullResponse, result)
@@ -176,5 +240,28 @@ export default class RentalOfferController extends Controller {
       res,
       fillDTO(RentalOfferFullResponse, result)
     );
+  }
+
+  public async favorite(req: Request, res: Response): Promise<void> {
+    const user = await this.userService.findByEmail(req.user.email);
+    if (!user) {
+      throw new HttpError(
+        StatusCodes.NOT_FOUND,
+        `User with email ${req.user.email} not found.`,
+        'RentalOfferController',
+      );
+    }
+
+    const rentalOffer = await this.rentalOfferService.findById(req.params.id);
+    if (!rentalOffer) {
+      throw new HttpError(
+        StatusCodes.NOT_FOUND,
+        `Offer with id ${req.params.id} not found.`,
+        'RentalOfferController',
+      );
+    }
+
+    const result = await this.rentalOfferService.favorite(user, rentalOffer._id);
+    return this.ok(res, fillDTO(UserResponse, result));
   }
 }

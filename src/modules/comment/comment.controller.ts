@@ -12,6 +12,8 @@ import { RentalOfferServiceInterface } from '../rentaloffer/rental-offer.interfa
 import { CommentServiceInterface } from './comment.interface.js';
 import { CreateCommentDto } from './dto/comment.dto.js';
 import { CommentResponse } from './comment.response.js';
+import { ProtectedMiddleware } from '../../utils/middlewares/protected.middleware.js';
+import { Types } from 'mongoose';
 
 @injectable()
 export default class CommentController extends Controller {
@@ -22,24 +24,33 @@ export default class CommentController extends Controller {
   ) {
     super(logger);
 
-    this.addRoute({ path: '/', method: HttpMethod.Post, handler: this.create, middlewares: [new ValidateDtoMiddleware(CreateCommentDto)] });
+    this.addRoute({
+      path: '/',
+      method: HttpMethod.Post,
+      handler: this.create,
+      middlewares: [
+        new ProtectedMiddleware(),
+        new ValidateDtoMiddleware(CreateCommentDto)
+      ]
+    });
   }
 
   public async create(
-    { body }: Request<object, object, CreateCommentDto>,
+    { body, user }: Request<object, object, CreateCommentDto>,
     res: Response
   ): Promise<void> {
 
     if (!await this.offerService.exists(body.offerId)) {
       throw new HttpError(
         StatusCodes.NOT_FOUND,
-        `Offer with id ${body.offerId} not found.`,
+        `Comment with id ${body.offerId} not found.`,
         'CommentController'
       );
     }
 
-    const comment = await this.commentService.create(body);
+    const comment = await this.commentService.create({ ...body, authorId: user.id });
     await this.offerService.increaseCommentCount(body.offerId);
+    await this.offerService.updateRating(<Types.ObjectId>Types.ObjectId.createFromHexString(body.offerId));
     this.created(res, fillDTO(CommentResponse, comment));
   }
 }
