@@ -2,7 +2,7 @@ import { Expose, Type } from 'class-transformer';
 import { CityEnum } from '../../types/cities.js';
 import { HousingType } from '../../types/enums/housing-type.enum.js';
 import { OfferFeatures } from '../../types/enums/offer-features.enum.js';
-import UserResponse from '../user/user.response.js';
+import { UserResponse } from '../user/user.response.js';
 
 export class RentalOfferListResponse {
   @Expose()

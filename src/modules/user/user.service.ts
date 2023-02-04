@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { DocumentType, types } from '@typegoose/typegoose';
 import { UserEntity } from './user.entity.js';
-import { CreateUserDto, UpdateUserDto } from './dto/user.dto.js';
+import { CreateUserDto, LoginUserDto, UpdateUserDto } from './dto/user.dto.js';
 import { UserServiceInterface } from './user-service.interface.js';
 import { Component } from '../../types/component.type.js';
 import { LoggerInterface } from '../../utils/logger/logger.interface.js';
@@ -39,5 +39,16 @@ export default class UserService implements UserServiceInterface {
 
   public async updateById(userId: string, dto: UpdateUserDto): Promise<DocumentType<UserEntity> | null> {
     return this.userModel.findByIdAndUpdate(userId, dto, { new: true }).exec();
+  }
+
+  public async verify(dto: LoginUserDto, salt: string): Promise<DocumentType<UserEntity> | null> {
+    const user = await this.findByEmail(dto.email);
+    if (!user) {
+      return null;
+    }
+    if (!user.verifyPassword(dto.password, salt)) {
+      return null;
+    }
+    return user;
   }
 }

@@ -12,6 +12,7 @@ export type ConfigSchema = {
   DB_PORT: number;
   DB_NAME: string;
   STATIC_FOLDER: string;
+  JWT_SECRET: string;
 }
 
 export const configSchema = convict<ConfigSchema>({
@@ -62,5 +63,11 @@ export const configSchema = convict<ConfigSchema>({
     format: String,
     env: 'STATIC_FOLDER',
     default: 'static'
+  },
+  JWT_SECRET: {
+    doc: 'Secret text for signing JWT tokens',
+    format: String,
+    env: 'JWT_SECRET',
+    default: null
   }
 });

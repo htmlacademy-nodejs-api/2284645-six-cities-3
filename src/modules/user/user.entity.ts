@@ -40,7 +40,6 @@ export class UserEntity extends defaultClasses.TimeStamps implements User {
 
   @prop({
     ref: () => RentalOfferEntity,
-    _id: false
   })
   public favoriteOffers!: Ref<RentalOfferEntity>[];
 
@@ -50,5 +49,10 @@ export class UserEntity extends defaultClasses.TimeStamps implements User {
 
   public getPassword() {
     return this.password;
+  }
+
+  public verifyPassword(password: string, salt: string) {
+    const hashPassword = createSHA256(password, salt);
+    return hashPassword === this.password;
   }
 }
