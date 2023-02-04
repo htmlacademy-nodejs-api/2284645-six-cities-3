@@ -14,8 +14,8 @@ import { UserResponse, TokenUserResponse } from './user.response.js';
 import { ValidateDtoMiddleware } from '../../utils/middlewares/dto.middleware.js';
 import { ValidateObjectIdMiddleware } from '../../utils/middlewares/objectid.middleware.js';
 import { UploadFileMiddleware } from '../../utils/middlewares/upload.middleware.js';
-import { userConstants } from './user.constant.js';
 import { ProtectedMiddleware } from '../../utils/middlewares/protected.middleware.js';
+import { UserDefaults } from './user.constant.js';
 
 
 @injectable()
@@ -87,7 +87,7 @@ export default class UserController extends Controller {
       throw new HttpError(StatusCodes.UNAUTHORIZED, 'No user found with that email and password.', 'UserController',);
     }
 
-    const token = await createJWT(userConstants.JWT_ALGORITM, this.configService.get('JWT_SECRET'), {
+    const token = await createJWT(UserDefaults.JWT_ALGORITM, this.configService.get('JWT_SECRET'), {
       email: user.email,
       id: user.id
     });

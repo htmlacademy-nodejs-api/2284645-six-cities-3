@@ -1,4 +1,4 @@
-import { IsBoolean, IsDateString, IsEnum, IsMongoId, IsNumber, IsOptional, IsString, Length, Max, Min } from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsDateString, IsEnum, IsMongoId, IsNumber, IsOptional, IsString, Length, Max, Min } from 'class-validator';
 import { CityEnum, CityNamesEnum } from '../../../types/cities.js';
 import { HousingType, housingTypes } from '../../../types/enums/housing-type.enum.js';
 import { offerFeatures, OfferFeatures } from '../../../types/enums/offer-features.enum.js';
@@ -51,7 +51,11 @@ export class CreateRentalOfferDto {
   @IsMongoId({ message: 'authorId field must be a valid id' })
   public authorId!: string;
 
-  public latitude!: number;
+  @IsArray({ message: 'coordinates field must be an array' })
+  @ArrayMinSize(2, { message: 'coordinates field must have 2 elements' })
+  @ArrayMaxSize(2, { message: 'coordinates field must have 2 elements' })
+  @IsNumber({}, { each: true })
+  public coordinates!: [number, number];
 }
 
 export class UpdateRentalOfferDto {
@@ -112,5 +116,9 @@ export class UpdateRentalOfferDto {
   public features!: OfferFeatures[];
 
   @IsOptional()
-  public latitude!: number;
+  @IsArray({ message: 'coordinates field must be an array' })
+  @ArrayMinSize(2, { message: 'coordinates field must have 2 elements' })
+  @ArrayMaxSize(2, { message: 'coordinates field must have 2 elements' })
+  @IsNumber({}, { each: true })
+  public coordinates!: [number, number];
 }

@@ -63,9 +63,6 @@ export class RentalOfferEntity extends defaultClasses.TimeStamps {
   })
   public authorId!: Ref<UserEntity>;
 
-  @prop({ required: true, default: 0 })
-  public latitude!: number;
-
-  @prop({ required: true, default: 0 })
-  public longtitude!: number;
+  @prop({ required: true, default: [0, 0] })
+  public coordinates!: [number, number];
 }

@@ -91,8 +91,5 @@ export class RentalOfferFullResponse {
   public features!: OfferFeatures[];
 
   @Expose()
-  public latitude!: number;
-
-  @Expose()
-  public longtitude!: number;
+  public coordinates!: [number, number];
 }

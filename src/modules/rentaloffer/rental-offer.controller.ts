@@ -15,11 +15,11 @@ import { DocumentExistsMiddleware } from '../../utils/middlewares/document-exist
 import { ValidateObjectIdMiddleware } from '../../utils/middlewares/objectid.middleware.js';
 import { CommentResponse } from '../comment/comment.response.js';
 import { ValidateDtoMiddleware } from '../../utils/middlewares/dto.middleware.js';
-import { rentalOfferConstants } from './rental-offer.constant.js';
 import { UserServiceInterface } from '../user/user-service.interface.js';
 import { UserResponse } from '../user/user.response.js';
 import { ProtectedMiddleware } from '../../utils/middlewares/protected.middleware.js';
 import { cities, CityEnum } from '../../types/cities.js';
+import { RentalOfferDefaults } from './rental-offer.constant.js';
 
 @injectable()
 export default class RentalOfferController extends Controller {
@@ -34,7 +34,6 @@ export default class RentalOfferController extends Controller {
     this.addRoute({ path: '/', method: HttpMethod.Get, handler: this.index });
     this.addRoute({ path: '/new', method: HttpMethod.Get, handler: this.getRecent });
     this.addRoute({ path: '/hot', method: HttpMethod.Get, handler: this.getHot });
-    this.addRoute({ path: '/:city', method: HttpMethod.Get, handler: this.getPremiumByCity });
     this.addRoute({
       path: '/favorites',
       method: HttpMethod.Get,
@@ -43,16 +42,7 @@ export default class RentalOfferController extends Controller {
         new ProtectedMiddleware(),
       ]
     });
-
-    this.addRoute({
-      path: '/',
-      method: HttpMethod.Post,
-      handler: this.create,
-      middlewares: [
-        new ProtectedMiddleware(),
-        new ValidateDtoMiddleware(CreateRentalOfferDto),
-      ]
-    });
+    this.addRoute({ path: '/premium/:city', method: HttpMethod.Get, handler: this.getPremiumByCity });
     this.addRoute({
       path: '/:id',
       method: HttpMethod.Get,
@@ -60,6 +50,15 @@ export default class RentalOfferController extends Controller {
       middlewares: [
         new ValidateObjectIdMiddleware('id'),
         new DocumentExistsMiddleware(this.rentalOfferService, 'RentalOffer', 'id'),
+      ]
+    });
+    this.addRoute({
+      path: '/',
+      method: HttpMethod.Post,
+      handler: this.create,
+      middlewares: [
+        new ProtectedMiddleware(),
+        new ValidateDtoMiddleware(CreateRentalOfferDto),
       ]
     });
     this.addRoute({
@@ -105,10 +104,7 @@ export default class RentalOfferController extends Controller {
   }
 
   public async index(req: Request, res: Response): Promise<void> {
-    let user = null;
-    if (req.user) {
-      user = await this.userService.findByEmail(req.user.email);
-    }
+    const user = req.user ? await this.userService.findByEmail(req.user.email) : null;
     const result = await this.rentalOfferService.find(user);
     this.ok(
       res,
@@ -117,11 +113,8 @@ export default class RentalOfferController extends Controller {
   }
 
   public async getRecent(req: Request, res: Response): Promise<void> {
-    let user = null;
-    if (req.user) {
-      user = await this.userService.findByEmail(req.user.email);
-    }
-    const result = await this.rentalOfferService.findRecent(rentalOfferConstants.DEFAULT_NEW_OFFERS_LIMIT, user);
+    const user = req.user ? await this.userService.findByEmail(req.user.email) : null;
+    const result = await this.rentalOfferService.findRecent(RentalOfferDefaults.NEW_OFFERS_LIMIT, user);
     this.ok(
       res,
       fillDTO(RentalOfferListResponse, result)
@@ -129,11 +122,8 @@ export default class RentalOfferController extends Controller {
   }
 
   public async getHot(req: Request, res: Response): Promise<void> {
-    let user = null;
-    if (req.user) {
-      user = await this.userService.findByEmail(req.user.email);
-    }
-    const result = await this.rentalOfferService.findHot(rentalOfferConstants.DEFAULT_HOT_OFFERS_LIMIT, user);
+    const user = req.user ? await this.userService.findByEmail(req.user.email) : null;
+    const result = await this.rentalOfferService.findHot(RentalOfferDefaults.HOT_OFFERS_LIMIT, user);
     this.ok(
       res,
       fillDTO(RentalOfferListResponse, result)
@@ -141,19 +131,16 @@ export default class RentalOfferController extends Controller {
   }
 
   public async getPremiumByCity(req: Request, res: Response): Promise<void> {
-    const city = req.params.city;
+    const { city, id } = req.params;
     if (Object.keys(cities).indexOf(city) === -1) {
       throw new HttpError(
         StatusCodes.NOT_FOUND,
-        `RentalOffer with id ${req.params.id} not found.`,
+        `RentalOffer with id ${id} not found.`,
         'RentalOfferController',
       );
     }
-    let user = null;
-    if (req.user) {
-      user = await this.userService.findByEmail(req.user.email);
-    }
-    const result = await this.rentalOfferService.findPremiumByCity(<CityEnum>city, 3, user);
+    const user = req.user ? await this.userService.findByEmail(req.user.email) : null;
+    const result = await this.rentalOfferService.findPremiumByCity(<CityEnum>city, RentalOfferDefaults.PREMIUM_OFFERS_LIMIT, user);
     this.ok(
       res,
       fillDTO(RentalOfferListResponse, result)
@@ -186,10 +173,7 @@ export default class RentalOfferController extends Controller {
       );
     }
 
-    let user = null;
-    if (req.user) {
-      user = await this.userService.findByEmail(req.user.email);
-    }
+    const user = req.user ? await this.userService.findByEmail(req.user.email) : null;
     const result = await this.rentalOfferService.findById(req.params.id, user);
     this.ok(
       res,

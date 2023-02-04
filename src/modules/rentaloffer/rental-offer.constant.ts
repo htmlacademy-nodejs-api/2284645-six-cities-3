@@ -1,5 +1,7 @@
-export const rentalOfferConstants = {
-  DEFAULT_OFFERS_LIMIT: 25,
-  DEFAULT_HOT_OFFERS_LIMIT: 5,
-  DEFAULT_NEW_OFFERS_LIMIT: 5,
-} as const;
+export const enum RentalOfferDefaults {
+  OFFERS_LIMIT = 25,
+  HOT_OFFERS_LIMIT = 5,
+  NEW_OFFERS_LIMIT = 5,
+  PREMIUM_OFFERS_LIMIT = 3,
+  RATING_DECIMAL_OFFSET = 10,
+}

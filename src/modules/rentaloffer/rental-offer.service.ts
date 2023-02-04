@@ -12,6 +12,7 @@ import { LeanDocument, Types } from 'mongoose';
 import { CommentEntity } from '../comment/comment.entity.js';
 import { average } from '../../utils/common.js';
 import { CityEnum } from '../../types/cities.js';
+import { RentalOfferDefaults } from './rental-offer.constant.js';
 
 @injectable()
 export default class RentalOfferService implements RentalOfferServiceInterface {
@@ -218,14 +219,14 @@ export default class RentalOfferService implements RentalOfferServiceInterface {
       .match({ offerId })
       .project({ rating: 1 })
       .exec();
-    if (comments.length === 0) {
+    if (!comments.length) {
       return 1;
     }
     const ratings = [];
     for (const comment of comments) {
       ratings.push(comment.rating);
     }
-    return Math.round(average(ratings) * 10) / 10;
+    return Math.round(average(ratings) * RentalOfferDefaults.RATING_DECIMAL_OFFSET) / RentalOfferDefaults.RATING_DECIMAL_OFFSET;
   }
 
   public async updateRating(offerId: Types.ObjectId): Promise<DocumentType<RentalOfferEntity, types.BeAnObject> | null> {
