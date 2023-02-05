@@ -16,6 +16,7 @@ import { ValidateObjectIdMiddleware } from '../../utils/middlewares/objectid.mid
 import { UploadFileMiddleware } from '../../utils/middlewares/upload.middleware.js';
 import { ProtectedMiddleware } from '../../utils/middlewares/protected.middleware.js';
 import { UserDefaults } from './user.constant.js';
+import { GuestMiddleware } from '../../utils/middlewares/guest.middleware.js';
 
 
 @injectable()
@@ -31,7 +32,10 @@ export default class UserController extends Controller {
       path: '/register',
       method: HttpMethod.Post,
       handler: this.create,
-      middlewares: [new ValidateDtoMiddleware(CreateUserDto)]
+      middlewares: [
+        new GuestMiddleware(),
+        new ValidateDtoMiddleware(CreateUserDto)
+      ]
     });
     this.addRoute({
       path: '/login',

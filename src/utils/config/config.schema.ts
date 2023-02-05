@@ -68,6 +68,6 @@ export const configSchema = convict<ConfigSchema>({
     doc: 'Secret text for signing JWT tokens',
     format: String,
     env: 'JWT_SECRET',
-    default: null
+    default: null,
   }
 });

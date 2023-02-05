@@ -1,5 +1,5 @@
 export const enum RentalOfferDefaults {
-  OFFERS_LIMIT = 25,
+  OFFERS_LIMIT = 60,
   HOT_OFFERS_LIMIT = 5,
   NEW_OFFERS_LIMIT = 5,
   PREMIUM_OFFERS_LIMIT = 3,

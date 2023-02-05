@@ -8,7 +8,7 @@ import { RentalOfferEntity } from './rental-offer.entity';
 
 export interface RentalOfferServiceInterface {
   create(dto: CreateRentalOfferDto): Promise<DocumentType<RentalOfferEntity>>;
-  find(user?: UserEntity | null): Promise<(LeanDocument<RentalOfferEntity> & Required<{ _id: Types.ObjectId; }>)[] | null>;
+  find(limit: number, user?: UserEntity | null): Promise<(LeanDocument<RentalOfferEntity> & Required<{ _id: Types.ObjectId; }>)[] | null>;
   findRecent(limit: number, user?: UserEntity | null): Promise<(LeanDocument<RentalOfferEntity> & Required<{ _id: Types.ObjectId; }>)[] | null>;
   findHot(limit: number, user?: UserEntity | null): Promise<(LeanDocument<RentalOfferEntity> & Required<{ _id: Types.ObjectId; }>)[] | null>;
   findPremiumByCity(city: CityEnum, limit: number, user?: UserEntity | null): Promise<(LeanDocument<RentalOfferEntity> & Required<{ _id: Types.ObjectId; }>)[] | null>;

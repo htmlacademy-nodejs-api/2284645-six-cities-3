@@ -22,10 +22,10 @@ paths:
       tags:
         - rentaloffers
       summary: Получение списка предложений по аренде
-      parameters: [ $ref: '#/components/parameters/isPremium', $ref: '#/components/parameters/isFavorite' ]
+      parameters: [ $ref: '#/components/parameters/limit' ]
       responses:
-        "201":
-          description: Пользователь зарегистрирован. Объект пользователя.
+        "200":
+          description: Список предложений по аренде.
           content:
             application/json:
               schema:
@@ -49,6 +49,43 @@ paths:
                 $ref: '#/components/schemas/offer'
         "409":
           description: Предложение уже существует.
+  /offers/new:
+    get:
+      tags:
+        - rentaloffers
+      summary: Получение списка предложений по аренде
+      responses:
+        "200":
+          description: Список предложений по аренде.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offers'
+  /offers/hot:
+    get:
+      tags:
+        - rentaloffers
+      summary: Получение списка предложений по аренде
+      responses:
+        "200":
+          description: Список предложений по аренде.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offers'
+  /offers/premium/{city}:
+    parameters: [ $ref: '#/components/parameters/city' ]
+    get:
+      tags:
+        - rentaloffers
+      summary: Получение списка предложений по аренде
+      responses:
+        "200":
+          description: Список предложений по аренде.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offers'
   /offers/{id}:
     parameters: [ $ref: '#/components/parameters/id' ]
     get:
@@ -95,21 +132,7 @@ paths:
           description: Такого предложения не существует.
 
   # Комментарии
-  /offers/{id}/comments:
-    parameters: [ $ref: '#/components/parameters/id' ]
-    get:
-      tags:
-        - comments
-      summary: Получение списка комментариев для предложения
-      responses:
-        "201":
-          description: Комментарии получены.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/comments'
-        "404":
-          description: Такого предложения не существует.
+  /comments:
     post:
       tags:
         - comments
@@ -127,6 +150,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/comment'
+        "404":
+          description: Такого предложения не существует.
+  /offers/{id}/comments:
+    parameters: [ $ref: '#/components/parameters/id' ]
+    get:
+      tags:
+        - comments
+      summary: Получение списка комментариев для предложения
+      responses:
+        "201":
+          description: Комментарии получены.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/comments'
         "404":
           description: Такого предложения не существует.
 
@@ -194,18 +232,20 @@ paths:
 
 components:
   parameters:
-    isPremium:
-      name: 'premium'
-      description: 'Показывать только премиум-предложения'
+
+    # Параметры запросов
+    limit:
+      name: 'limit'
+      description: 'Изменяет количество элементов в ответе'
       in: 'query'
       schema:
-        type: 'boolean'
-    isFavorite:
-      name: 'favorite'
-      description: 'Показывать только избранные предложения'
+        type: number
+    city:
+      name: 'city'
+      description: 'Город, в котором нужно искать премиум-предложения'
       in: 'query'
       schema:
-        type: 'boolean'
+        type: string
     id:
       name: 'id'
       in: path
@@ -227,110 +267,147 @@ components:
       example: ["Breakfast", "Air conditioning", "Laptop friendly workspace", "Baby seat", "Washer", "Towels", "Fridge"]
 
     # Основные схемы для запросов
-    offer:
+    offerPreview:
       type: object
       properties:
-        id:
-          type: string
-          example: a313c3d6a15ac1022c6115ba
+        price:
+          type: number
+          example: 420
         name:
           type: string
-          example: Luxury apartment
-        description:
+          example: Small Beach House
+        type:
           type: string
-          example: Small apartment in the center of the city
-        city:
-          type: string
-          example: Cologne
-        previewImage:
-          type: string
-          example: "prevImage01.png"
-        photos:
-          $ref: '#/components/schemas/photosArray'
-        isPremium:
-          type: boolean
-          example: true
+          example: house
         isFavorite:
           type: boolean
           example: false
-        rating:
-          type: number
-          example: 4
-        type:
+        createdDate:
           type: string
-          example: apartment
-        rooms:
-          type: number
-          example: 3
-        guests:
-          type: number
-          example: 5
-        price:
-          type: number
-          example: 250
-        features:
-          $ref: '#/components/schemas/featuresArray'
-        author:
-          $ref: '#/components/schemas/user'
-        commentCount:
-          type: number
-          example: 10
-        latitude:
-          type: number
-          example: 15.100
-        longtitude:
-          type: number
-          example: 20.600
-    offers:
-      type: array
-      items:
-        $ref: '#/components/schemas/offer'
-    createOffer:
-      type: object
-      properties:
-        name:
-          type: string
-          example: Luxury apartment
-        description:
-          type: string
-          example: Small apartment in the center of the city
+          example: "2023-01-10T01:07:21.762Z"
         city:
           type: string
           example: Cologne
         previewImage:
           type: string
-          example: "prevImage01.png"
-        photos:
-          $ref: '#/components/schemas/photosArray'
+          example: photo.jpg
         isPremium:
           type: boolean
           example: true
         rating:
           type: number
-          example: 4
+          example: 2.5
+        commentCount:
+          type: number
+          example: 3
+        user:
+          $ref: '#/components/schemas/user'
+    offer:
+      type: object
+      properties:
+        price:
+          type: number
+          example: 420
+        name:
+          type: string
+          example: Small Beach House
         type:
           type: string
-          example: apartment
+          example: house
+        isFavorite:
+          type: boolean
+          example: false
+        createdDate:
+          type: string
+          example: "2023-01-10T01:07:21.762Z"
+        city:
+          type: string
+          example: Cologne
+        previewImage:
+          type: string
+          example: photo.jpg
+        isPremium:
+          type: boolean
+          example: true
+        rating:
+          type: number
+          example: 2.5
+        commentCount:
+          type: number
+          example: 3
+        user:
+          $ref: '#/components/schemas/user'
+        description:
+          type: number
+          example: 3
+        photos:
+          $ref: '#/components/schemas/photosArray'
         rooms:
           type: number
           example: 3
         guests:
           type: number
-          example: 5
-        price:
-          type: number
-          example: 250
+          example: 3
         features:
           $ref: '#/components/schemas/featuresArray'
         coordinates:
-          type: object
-          properties:
-            latitude:
-              type: number
-              example: 15.100
-            longitude:
-              type: number
-              example: 20.600
+          type: array
+          example: [52.6, 25.12]
+    offers:
+      type: array
+      items:
+        $ref: '#/components/schemas/offerPreview'
+    createOffer:
+      type: object
+      properties:
+        price:
+          type: number
+          example: 420
+        name:
+          type: string
+          example: Small Beach House
+        type:
+          type: string
+          example: house
+        isFavorite:
+          type: boolean
+          example: false
+        createdDate:
+          type: string
+          example: "2023-01-10T01:07:21.762Z"
+        city:
+          type: string
+          example: Cologne
+        previewImage:
+          type: string
+          example: photo.jpg
+        isPremium:
+          type: boolean
+          example: true
+        rating:
+          type: number
+          example: 2.5
+        commentCount:
+          type: number
+          example: 3
+        user:
+          $ref: '#/components/schemas/user'
+        description:
+          type: number
+          example: 3
+        photos:
+          $ref: '#/components/schemas/photosArray'
+        rooms:
+          type: number
+          example: 3
+        guests:
+          type: number
+          example: 3
+        features:
+          $ref: '#/components/schemas/featuresArray'
+        coordinates:
+          type: array
+          example: [52.6, 25.12]
     updateOffer:
       type: object
       properties:
@@ -345,13 +422,13 @@ components:
         text:
           type: string
           example: Looks very good, but has problems with cleanup
-        createdDate:
-          type: string
-          example: 2021-10-10T10:10:10.000Z
         rating:
           type: number
           example: 3
-        author:
+        createdDate:
+          type: string
+          example: 2021-10-10T10:10:10.000Z
+        user:
           $ref: '#/components/schemas/user'
     comments:
       type: array
@@ -363,15 +440,16 @@ components:
         text:
           type: string
           example: 27user@pm.me
-        author:
-          $ref: '#/components/schemas/user'
+        offerId:
+          type: string
+          example: a313c3d6a15ac1022c6115ba
+        rating:
+          type: number
+          example: 3
 
     user:
       type: object
       properties:
-        id:
-          type: string
-          example: a313c3d6a15ac1022c6115ba
         name:
           type: string
           example: Alexander
@@ -384,6 +462,9 @@ components:
         type:
           type: string
           example: обычный
+        favoriteOffers:
+          type: array
+          example: [a313c3d6a15ac1022c6115ba, b512c3d6a15ac1022c6641aa]
     createUser:
       type: object
       properties:
@@ -405,3 +486,12 @@ components:
         password:
           type: string
           example: "*userpassword2021"
+    token:
+      type: object
+      properties:
+        email:
+          type: string
+          example: 27user@pm.me
+        token:
+          type: string
+          example: 27user@pm.me

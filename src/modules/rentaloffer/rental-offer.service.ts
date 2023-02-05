@@ -31,10 +31,11 @@ export default class RentalOfferService implements RentalOfferServiceInterface {
     return result;
   }
 
-  public async find(user?: UserEntity | null): Promise<(LeanDocument<RentalOfferEntity> & Required<{ _id: Types.ObjectId; }>)[] | null> {
+  public async find(limit: number, user?: UserEntity | null): Promise<(LeanDocument<RentalOfferEntity> & Required<{ _id: Types.ObjectId; }>)[] | null> {
     const offers = (user) ? user.favoriteOffers : [];
     return this.offerModel
       .aggregate()
+      .sort({ createdDate: 'desc' })
       .lookup({
         from: 'users',
         localField: 'authorId',
@@ -50,6 +51,7 @@ export default class RentalOfferService implements RentalOfferServiceInterface {
           $in: ['$_id', offers]
         }
       })
+      .limit(limit)
       .exec();
   }
 
@@ -58,7 +60,6 @@ export default class RentalOfferService implements RentalOfferServiceInterface {
     return this.offerModel
       .aggregate()
       .sort({ createdDate: 'desc' })
-      .limit(limit)
       .lookup({
         from: 'users',
         localField: 'authorId',
@@ -74,6 +75,7 @@ export default class RentalOfferService implements RentalOfferServiceInterface {
           $in: ['$_id', offers]
         }
       })
+      .limit(limit)
       .exec();
   }
 
@@ -82,7 +84,6 @@ export default class RentalOfferService implements RentalOfferServiceInterface {
     return this.offerModel
       .aggregate()
       .sort({ commentCount: 'asc' })
-      .limit(limit)
       .lookup({
         from: 'users',
         localField: 'authorId',
@@ -98,6 +99,7 @@ export default class RentalOfferService implements RentalOfferServiceInterface {
           $in: ['$_id', offers]
         }
       })
+      .limit(limit)
       .exec();
   }
 
@@ -105,9 +107,8 @@ export default class RentalOfferService implements RentalOfferServiceInterface {
     const offers = (user) ? user.favoriteOffers : [];
     return this.offerModel
       .aggregate()
-      .match({ city, isPremium: true })
       .sort({ createdDate: 'desc' })
-      .limit(limit)
+      .match({ city, isPremium: true })
       .lookup({
         from: 'users',
         localField: 'authorId',
@@ -123,6 +124,7 @@ export default class RentalOfferService implements RentalOfferServiceInterface {
           $in: ['$_id', offers]
         }
       })
+      .limit(limit)
       .exec();
   }
 

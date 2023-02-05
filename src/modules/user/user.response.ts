@@ -12,6 +12,9 @@ export class UserResponse {
   public avatar!: string;
 
   @Expose()
+  public type!: string;
+
+  @Expose()
   @Transform((value) => {
     if ('value' in value) {
       return value.obj[value.key];

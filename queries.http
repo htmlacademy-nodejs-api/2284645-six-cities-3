@@ -10,14 +10,29 @@ GET http://localhost:25569/offers HTTP/1.1
 Content-Type: application/json
 ###
 
+## Получить список предложений (с лимитом в 5 предложений)
+GET http://localhost:25569/offers?limit=5 HTTP/1.1
+Content-Type: application/json
+###
+
 ## Получить список предложений (с учетом избранных)
 GET http://localhost:25569/offers HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6IjI3cm9naUBwbS5tZW1lIiwiaWQiOiI2M2RiYzMxNjIxODI4ZGFiOGVmNTRhMWYiLCJpYXQiOjE2NzU0MDE1ODksImV4cCI6MTY3NTU3NDM4OX0.c_rashVzj9iasY4Y1Bu23TwXgeLcKcuyZ0bCMfHqZl8
 ###
 
+## Получить список новых предложений
+GET http://localhost:25569/offers/new HTTP/1.1
+Content-Type: application/json
+###
+
+## Получить список горячих предложений
+GET http://localhost:25569/offers/hot HTTP/1.1
+Content-Type: application/json
+###
+
 ## Получить список премиум предложений по городу
-GET http://localhost:25569/offers/premium/Cologne HTTP/1.1
+GET http://localhost:25569/offers/premium/Amsterdam HTTP/1.1
 Content-Type: application/json
 ###
 
@@ -112,7 +127,7 @@ POST http://localhost:25569/users/register HTTP/1.1
 Content-Type: application/json
 
 {
-  "email": "27rogi@pm.meme",
+  "email": "27r2ogi@pm.meme",
   "avatar": "useravatar.jpg",
   "name": "Igor",
   "password": "igor2023"

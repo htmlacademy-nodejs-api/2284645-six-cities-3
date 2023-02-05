@@ -20,6 +20,7 @@ import { UserResponse } from '../user/user.response.js';
 import { ProtectedMiddleware } from '../../utils/middlewares/protected.middleware.js';
 import { cities, CityEnum } from '../../types/cities.js';
 import { RentalOfferDefaults } from './rental-offer.constant.js';
+import { CommentDefaults } from '../comment/comment.constant.js';
 
 @injectable()
 export default class RentalOfferController extends Controller {
@@ -32,17 +33,17 @@ export default class RentalOfferController extends Controller {
     super(logger);
 
     this.addRoute({ path: '/', method: HttpMethod.Get, handler: this.index });
-    this.addRoute({ path: '/new', method: HttpMethod.Get, handler: this.getRecent });
-    this.addRoute({ path: '/hot', method: HttpMethod.Get, handler: this.getHot });
+    this.addRoute({ path: '/new', method: HttpMethod.Get, handler: this.showRecent });
+    this.addRoute({ path: '/hot', method: HttpMethod.Get, handler: this.showHot });
     this.addRoute({
       path: '/favorites',
       method: HttpMethod.Get,
-      handler: this.getFavorites,
+      handler: this.showFavorites,
       middlewares: [
         new ProtectedMiddleware(),
       ]
     });
-    this.addRoute({ path: '/premium/:city', method: HttpMethod.Get, handler: this.getPremiumByCity });
+    this.addRoute({ path: '/premium/:city', method: HttpMethod.Get, handler: this.showPremiumByCity });
     this.addRoute({
       path: '/:id',
       method: HttpMethod.Get,
@@ -85,7 +86,7 @@ export default class RentalOfferController extends Controller {
     this.addRoute({
       path: '/:id/comments',
       method: HttpMethod.Get,
-      handler: this.getComments,
+      handler: this.showComments,
       middlewares: [
         new ValidateObjectIdMiddleware('id'),
         new DocumentExistsMiddleware(this.rentalOfferService, 'RentalOffer', 'id'),
@@ -105,14 +106,15 @@ export default class RentalOfferController extends Controller {
 
   public async index(req: Request, res: Response): Promise<void> {
     const user = req.user ? await this.userService.findByEmail(req.user.email) : null;
-    const result = await this.rentalOfferService.find(user);
+    const limit = (req.query.limit && Number.isInteger(Number(req.query.limit))) ? Number(req.query.limit) : RentalOfferDefaults.OFFERS_LIMIT;
+    const result = await this.rentalOfferService.find(limit, user);
     this.ok(
       res,
       fillDTO(RentalOfferListResponse, result)
     );
   }
 
-  public async getRecent(req: Request, res: Response): Promise<void> {
+  public async showRecent(req: Request, res: Response): Promise<void> {
     const user = req.user ? await this.userService.findByEmail(req.user.email) : null;
     const result = await this.rentalOfferService.findRecent(RentalOfferDefaults.NEW_OFFERS_LIMIT, user);
     this.ok(
@@ -121,7 +123,7 @@ export default class RentalOfferController extends Controller {
     );
   }
 
-  public async getHot(req: Request, res: Response): Promise<void> {
+  public async showHot(req: Request, res: Response): Promise<void> {
     const user = req.user ? await this.userService.findByEmail(req.user.email) : null;
     const result = await this.rentalOfferService.findHot(RentalOfferDefaults.HOT_OFFERS_LIMIT, user);
     this.ok(
@@ -130,7 +132,7 @@ export default class RentalOfferController extends Controller {
     );
   }
 
-  public async getPremiumByCity(req: Request, res: Response): Promise<void> {
+  public async showPremiumByCity(req: Request, res: Response): Promise<void> {
     const { city, id } = req.params;
     if (Object.keys(cities).indexOf(city) === -1) {
       throw new HttpError(
@@ -147,7 +149,7 @@ export default class RentalOfferController extends Controller {
     );
   }
 
-  public async getFavorites(req: Request, res: Response): Promise<void> {
+  public async showFavorites(req: Request, res: Response): Promise<void> {
     const result = await this.rentalOfferService.findFavorites(req.user.id);
     this.ok(
       res,
@@ -155,8 +157,8 @@ export default class RentalOfferController extends Controller {
     );
   }
 
-  public async getComments(req: Request, res: Response): Promise<void> {
-    const result = await this.commentService.findByOfferId(req.params.id);
+  public async showComments(req: Request, res: Response): Promise<void> {
+    const result = await this.commentService.findByOfferId(CommentDefaults.COMMENTS_LIMIT, req.params.id);
     this.ok(
       res,
       fillDTO(CommentResponse, result)
@@ -201,6 +203,13 @@ export default class RentalOfferController extends Controller {
         'RentalOfferController',
       );
     }
+    if (existsRentalOffer.authorId._id.toHexString() !== req.user.id) {
+      throw new HttpError(
+        StatusCodes.FORBIDDEN,
+        'You must be the owner of this offer to update it!',
+        'RentalOfferController',
+      );
+    }
 
     const result = await this.rentalOfferService.updateById(req.params.id, req.body);
     this.ok(
@@ -215,6 +224,13 @@ export default class RentalOfferController extends Controller {
       throw new HttpError(
         StatusCodes.NOT_FOUND,
         `RentalOffer with id ${req.params.id} not found.`,
+        'RentalOfferController',
+      );
+    }
+    if (existsRentalOffer.authorId._id.toHexString() !== req.user.id) {
+      throw new HttpError(
+        StatusCodes.FORBIDDEN,
+        'You must be the owner of this offer to delete it!',
         'RentalOfferController',
       );
     }
