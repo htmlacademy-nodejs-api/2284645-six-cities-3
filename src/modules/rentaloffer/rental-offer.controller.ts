@@ -9,50 +9,44 @@ import HttpError from '../../utils/errors/http-error.js';
 import { LoggerInterface } from '../../utils/logger/logger.interface.js';
 import { CreateRentalOfferDto, UpdateRentalOfferDto } from './dto/rental-offer.dto.js';
 import { RentalOfferServiceInterface } from './rental-offer.interface.js';
-import { RentalOfferListResponse, RentalOfferFullResponse } from './rental-offer.response.js';
+import { RentalOfferListResponse, RentalOfferFullResponse, UploadPreviewResponse } from './rental-offer.response.js';
 import { CommentServiceInterface } from '../comment/comment.interface.js';
 import { DocumentExistsMiddleware } from '../../utils/middlewares/document-exists.middleware.js';
 import { ValidateObjectIdMiddleware } from '../../utils/middlewares/objectid.middleware.js';
 import { CommentResponse } from '../comment/comment.response.js';
 import { ValidateDtoMiddleware } from '../../utils/middlewares/dto.middleware.js';
-import { rentalOfferConstants } from './rental-offer.constant.js';
 import { UserServiceInterface } from '../user/user-service.interface.js';
 import { UserResponse } from '../user/user.response.js';
 import { ProtectedMiddleware } from '../../utils/middlewares/protected.middleware.js';
 import { cities, CityEnum } from '../../types/cities.js';
+import { RentalOfferDefaults } from './rental-offer.constant.js';
+import { CommentDefaults } from '../comment/comment.constant.js';
+import { ConfigInterface } from '../../utils/config/config.interface.js';
+import { UploadFileMiddleware } from '../../utils/middlewares/upload.middleware.js';
 
 @injectable()
 export default class RentalOfferController extends Controller {
   constructor(
     @inject(Component.LoggerInterface) logger: LoggerInterface,
+    @inject(Component.ConfigInterface) configService: ConfigInterface,
     @inject(Component.RentalOfferServiceInterface) private readonly rentalOfferService: RentalOfferServiceInterface,
     @inject(Component.CommentServiceInterface) private readonly commentService: CommentServiceInterface,
     @inject(Component.UserServiceInterface) private readonly userService: UserServiceInterface
   ) {
-    super(logger);
+    super(logger, configService);
 
     this.addRoute({ path: '/', method: HttpMethod.Get, handler: this.index });
-    this.addRoute({ path: '/new', method: HttpMethod.Get, handler: this.getRecent });
-    this.addRoute({ path: '/hot', method: HttpMethod.Get, handler: this.getHot });
-    this.addRoute({ path: '/:city', method: HttpMethod.Get, handler: this.getPremiumByCity });
+    this.addRoute({ path: '/new', method: HttpMethod.Get, handler: this.showRecent });
+    this.addRoute({ path: '/hot', method: HttpMethod.Get, handler: this.showHot });
     this.addRoute({
       path: '/favorites',
       method: HttpMethod.Get,
-      handler: this.getFavorites,
+      handler: this.showFavorites,
       middlewares: [
         new ProtectedMiddleware(),
       ]
     });
-
-    this.addRoute({
-      path: '/',
-      method: HttpMethod.Post,
-      handler: this.create,
-      middlewares: [
-        new ProtectedMiddleware(),
-        new ValidateDtoMiddleware(CreateRentalOfferDto),
-      ]
-    });
+    this.addRoute({ path: '/premium/:city', method: HttpMethod.Get, handler: this.showPremiumByCity });
     this.addRoute({
       path: '/:id',
       method: HttpMethod.Get,
@@ -60,6 +54,15 @@ export default class RentalOfferController extends Controller {
       middlewares: [
         new ValidateObjectIdMiddleware('id'),
         new DocumentExistsMiddleware(this.rentalOfferService, 'RentalOffer', 'id'),
+      ]
+    });
+    this.addRoute({
+      path: '/',
+      method: HttpMethod.Post,
+      handler: this.create,
+      middlewares: [
+        new ProtectedMiddleware(),
+        new ValidateDtoMiddleware(CreateRentalOfferDto),
       ]
     });
     this.addRoute({
@@ -86,7 +89,7 @@ export default class RentalOfferController extends Controller {
     this.addRoute({
       path: '/:id/comments',
       method: HttpMethod.Get,
-      handler: this.getComments,
+      handler: this.showComments,
       middlewares: [
         new ValidateObjectIdMiddleware('id'),
         new DocumentExistsMiddleware(this.rentalOfferService, 'RentalOffer', 'id'),
@@ -102,65 +105,64 @@ export default class RentalOfferController extends Controller {
         new DocumentExistsMiddleware(this.rentalOfferService, 'RentalOffer', 'id'),
       ]
     });
+    this.addRoute({
+      path: '/:id/preview',
+      method: HttpMethod.Post,
+      handler: this.uploadPreview,
+      middlewares: [
+        new ProtectedMiddleware(),
+        new ValidateObjectIdMiddleware('id'),
+        new UploadFileMiddleware(`${this.configService.get('UPLOAD_FOLDER')}/previews`, 'preview')
+      ]
+    });
   }
 
   public async index(req: Request, res: Response): Promise<void> {
-    let user = null;
-    if (req.user) {
-      user = await this.userService.findByEmail(req.user.email);
-    }
-    const result = await this.rentalOfferService.find(user);
+    const user = req.user ? await this.userService.findByEmail(req.user.email) : null;
+    const limit = (req.query.limit && Number.isInteger(Number(req.query.limit))) ? Number(req.query.limit) : RentalOfferDefaults.OFFERS_LIMIT;
+    const result = await this.rentalOfferService.find(limit, user);
     this.ok(
       res,
       fillDTO(RentalOfferListResponse, result)
     );
   }
 
-  public async getRecent(req: Request, res: Response): Promise<void> {
-    let user = null;
-    if (req.user) {
-      user = await this.userService.findByEmail(req.user.email);
-    }
-    const result = await this.rentalOfferService.findRecent(rentalOfferConstants.DEFAULT_NEW_OFFERS_LIMIT, user);
+  public async showRecent(req: Request, res: Response): Promise<void> {
+    const user = req.user ? await this.userService.findByEmail(req.user.email) : null;
+    const result = await this.rentalOfferService.findRecent(RentalOfferDefaults.NEW_OFFERS_LIMIT, user);
     this.ok(
       res,
       fillDTO(RentalOfferListResponse, result)
     );
   }
 
-  public async getHot(req: Request, res: Response): Promise<void> {
-    let user = null;
-    if (req.user) {
-      user = await this.userService.findByEmail(req.user.email);
-    }
-    const result = await this.rentalOfferService.findHot(rentalOfferConstants.DEFAULT_HOT_OFFERS_LIMIT, user);
+  public async showHot(req: Request, res: Response): Promise<void> {
+    const user = req.user ? await this.userService.findByEmail(req.user.email) : null;
+    const result = await this.rentalOfferService.findHot(RentalOfferDefaults.HOT_OFFERS_LIMIT, user);
     this.ok(
       res,
       fillDTO(RentalOfferListResponse, result)
     );
   }
 
-  public async getPremiumByCity(req: Request, res: Response): Promise<void> {
-    const city = req.params.city;
+  public async showPremiumByCity(req: Request, res: Response): Promise<void> {
+    const { city, id } = req.params;
     if (Object.keys(cities).indexOf(city) === -1) {
       throw new HttpError(
         StatusCodes.NOT_FOUND,
-        `RentalOffer with id ${req.params.id} not found.`,
+        `RentalOffer with id ${id} not found.`,
         'RentalOfferController',
       );
     }
-    let user = null;
-    if (req.user) {
-      user = await this.userService.findByEmail(req.user.email);
-    }
-    const result = await this.rentalOfferService.findPremiumByCity(<CityEnum>city, 3, user);
+    const user = req.user ? await this.userService.findByEmail(req.user.email) : null;
+    const result = await this.rentalOfferService.findPremiumByCity(<CityEnum>city, RentalOfferDefaults.PREMIUM_OFFERS_LIMIT, user);
     this.ok(
       res,
       fillDTO(RentalOfferListResponse, result)
     );
   }
 
-  public async getFavorites(req: Request, res: Response): Promise<void> {
+  public async showFavorites(req: Request, res: Response): Promise<void> {
     const result = await this.rentalOfferService.findFavorites(req.user.id);
     this.ok(
       res,
@@ -168,8 +170,8 @@ export default class RentalOfferController extends Controller {
     );
   }
 
-  public async getComments(req: Request, res: Response): Promise<void> {
-    const result = await this.commentService.findByOfferId(req.params.id);
+  public async showComments(req: Request, res: Response): Promise<void> {
+    const result = await this.commentService.findByOfferId(CommentDefaults.COMMENTS_LIMIT, req.params.id);
     this.ok(
       res,
       fillDTO(CommentResponse, result)
@@ -186,10 +188,7 @@ export default class RentalOfferController extends Controller {
       );
     }
 
-    let user = null;
-    if (req.user) {
-      user = await this.userService.findByEmail(req.user.email);
-    }
+    const user = req.user ? await this.userService.findByEmail(req.user.email) : null;
     const result = await this.rentalOfferService.findById(req.params.id, user);
     this.ok(
       res,
@@ -217,6 +216,13 @@ export default class RentalOfferController extends Controller {
         'RentalOfferController',
       );
     }
+    if (existsRentalOffer.authorId._id.toHexString() !== req.user.id) {
+      throw new HttpError(
+        StatusCodes.FORBIDDEN,
+        'You must be the owner of this offer to update it!',
+        'RentalOfferController',
+      );
+    }
 
     const result = await this.rentalOfferService.updateById(req.params.id, req.body);
     this.ok(
@@ -231,6 +237,13 @@ export default class RentalOfferController extends Controller {
       throw new HttpError(
         StatusCodes.NOT_FOUND,
         `RentalOffer with id ${req.params.id} not found.`,
+        'RentalOfferController',
+      );
+    }
+    if (existsRentalOffer.authorId._id.toHexString() !== req.user.id) {
+      throw new HttpError(
+        StatusCodes.FORBIDDEN,
+        'You must be the owner of this offer to delete it!',
         'RentalOfferController',
       );
     }
@@ -263,5 +276,12 @@ export default class RentalOfferController extends Controller {
 
     const result = await this.rentalOfferService.favorite(user, rentalOffer._id);
     return this.ok(res, fillDTO(UserResponse, result));
+  }
+
+  public async uploadPreview(req: Request, res: Response): Promise<void> {
+    const { id } = req.params;
+    const dtoPreviewImage = { previewImage: req.file?.path };
+    await this.rentalOfferService.updateById(id, dtoPreviewImage);
+    this.created(res, fillDTO(UploadPreviewResponse, dtoPreviewImage));
   }
 }

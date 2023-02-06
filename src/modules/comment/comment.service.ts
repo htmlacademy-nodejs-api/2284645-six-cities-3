@@ -17,15 +17,19 @@ export default class CommentService implements CommentServiceInterface {
   }
 
   public async findById(commentId: string): Promise<DocumentType<CommentEntity> | null> {
-    return this.commentModel.findById(commentId).populate(['authorId', 'offerId']).exec();
+    return this.commentModel
+      .findById(commentId)
+      .populate(['authorId', 'offerId'])
+      .exec();
   }
 
-  public async findByOfferId(offerId: string): Promise<DocumentType<CommentEntity>[] | null> {
-    return this.commentModel.find({ offerId }).populate(['authorId', 'offerId']).exec();
-  }
-
-  public async findRecentByOfferId(offerId: string, limit = 50): Promise<DocumentType<CommentEntity>[] | null> {
-    return this.commentModel.find({ offerId }).sort({ createdDate: 'desc' }).limit(limit).populate(['authorId', 'offerId']).exec();
+  public async findByOfferId(limit: number, offerId: string): Promise<DocumentType<CommentEntity>[] | null> {
+    return this.commentModel
+      .find({ offerId })
+      .sort({ createdAt: 'desc' })
+      .limit(limit)
+      .populate(['authorId'])
+      .exec();
   }
 
   public async deleteByOfferId(offerId: string): Promise<number> {

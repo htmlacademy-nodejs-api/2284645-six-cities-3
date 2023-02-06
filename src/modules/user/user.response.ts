@@ -3,6 +3,9 @@ import { Types } from 'mongoose';
 
 export class UserResponse {
   @Expose()
+  public id!: string;
+
+  @Expose()
   public name!: string;
 
   @Expose()
@@ -10,6 +13,9 @@ export class UserResponse {
 
   @Expose()
   public avatar!: string;
+
+  @Expose()
+  public type!: string;
 
   @Expose()
   @Transform((value) => {
@@ -27,4 +33,9 @@ export class TokenUserResponse {
 
   @Expose()
   public token!: string;
+}
+
+export class UploadAvatarResponse {
+  @Expose()
+  public avatar!: string;
 }

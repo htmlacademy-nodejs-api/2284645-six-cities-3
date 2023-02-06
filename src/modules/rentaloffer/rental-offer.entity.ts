@@ -26,7 +26,7 @@ export class RentalOfferEntity extends defaultClasses.TimeStamps {
   @prop({ enum: CityNamesEnum, required: true })
   public city!: string;
 
-  @prop({ required: true })
+  @prop({ default: '' })
   public previewImage!: string;
 
   @prop({ type: String, required: true })
@@ -63,9 +63,6 @@ export class RentalOfferEntity extends defaultClasses.TimeStamps {
   })
   public authorId!: Ref<UserEntity>;
 
-  @prop({ required: true, default: 0 })
-  public latitude!: number;
-
-  @prop({ required: true, default: 0 })
-  public longtitude!: number;
+  @prop({ type: Number, required: true, default: [0, 0] })
+  public coordinates!: [number, number];
 }

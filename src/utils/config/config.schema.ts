@@ -11,8 +11,10 @@ export type ConfigSchema = {
   DB_PASSWORD: string;
   DB_PORT: number;
   DB_NAME: string;
+  UPLOAD_FOLDER: string;
   STATIC_FOLDER: string;
   JWT_SECRET: string;
+  HOST: string;
 }
 
 export const configSchema = convict<ConfigSchema>({
@@ -58,8 +60,14 @@ export const configSchema = convict<ConfigSchema>({
     env: 'DB_NAME',
     default: 'igor-six-cities'
   },
+  UPLOAD_FOLDER: {
+    doc: 'Folder for uploaded images and other files',
+    format: String,
+    env: 'UPLOAD_FOLDER',
+    default: 'upload'
+  },
   STATIC_FOLDER: {
-    doc: 'Folder for uploaded images and other static files',
+    doc: 'Folder for static files',
     format: String,
     env: 'STATIC_FOLDER',
     default: 'static'
@@ -68,6 +76,12 @@ export const configSchema = convict<ConfigSchema>({
     doc: 'Secret text for signing JWT tokens',
     format: String,
     env: 'JWT_SECRET',
-    default: null
-  }
+    default: null,
+  },
+  HOST: {
+    doc: 'Host URL',
+    format: String,
+    env: 'HOST',
+    default: 'localhost'
+  },
 });

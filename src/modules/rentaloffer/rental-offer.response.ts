@@ -91,8 +91,10 @@ export class RentalOfferFullResponse {
   public features!: OfferFeatures[];
 
   @Expose()
-  public latitude!: number;
+  public coordinates!: [number, number];
+}
 
-  @Expose()
-  public longtitude!: number;
+export class UploadPreviewResponse {
+  @Expose({ name: 'previewImage' })
+  public previewImage!: string;
 }

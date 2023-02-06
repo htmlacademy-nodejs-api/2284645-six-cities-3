@@ -12,6 +12,7 @@ export default class DatabaseService implements DatabaseInterface {
 
   public async connect(uri: string): Promise<void> {
     this.logger.info('Подключение к MongoDB...');
+    mongoose.set('strictQuery', true);
     await mongoose.connect(uri);
     this.logger.info('Подключение к БД установлено.');
   }

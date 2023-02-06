@@ -9,6 +9,8 @@ import express, { Express } from 'express';
 import { ControllerInterface } from '../utils/controller/controller.interface.js';
 import { ExceptionFilterInterface } from '../utils/errors/exception-filter.interface.js';
 import { AuthMiddleware } from '../utils/middlewares/auth.middleware.js';
+import { getFullServerPath } from '../utils/common.js';
+import cors from 'cors';
 
 @injectable()
 export default class Application {
@@ -34,10 +36,12 @@ export default class Application {
 
   public initMiddleware() {
     this.expressApp.use(express.json());
+    this.expressApp.use('/upload', express.static(this.config.get('UPLOAD_FOLDER')));
     this.expressApp.use('/static', express.static(this.config.get('STATIC_FOLDER')));
 
     const authMiddleware = new AuthMiddleware(this.config.get('JWT_SECRET'));
     this.expressApp.use(authMiddleware.execute.bind(authMiddleware));
+    this.expressApp.use(cors());
   }
 
   public initExceptionFilters() {
@@ -63,6 +67,6 @@ export default class Application {
     this.initRoutes();
     this.initExceptionFilters();
     this.expressApp.listen(this.config.get('PORT'));
-    this.logger.info(`Сервер работает по адресу http://localhost:${this.config.get('PORT')}`);
+    this.logger.info(`Сервер работает по адресу ${getFullServerPath(this.config.get('HOST'), this.config.get('PORT'))}`);
   }
 }

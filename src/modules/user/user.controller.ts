@@ -10,28 +10,32 @@ import { Controller } from '../../utils/controller/controller.js';
 import HttpError from '../../utils/errors/http-error.js';
 import { LoggerInterface } from '../../utils/logger/logger.interface.js';
 import { CreateUserDto, LoginUserDto } from './dto/user.dto.js';
-import { UserResponse, TokenUserResponse } from './user.response.js';
+import { UserResponse, TokenUserResponse, UploadAvatarResponse } from './user.response.js';
 import { ValidateDtoMiddleware } from '../../utils/middlewares/dto.middleware.js';
 import { ValidateObjectIdMiddleware } from '../../utils/middlewares/objectid.middleware.js';
 import { UploadFileMiddleware } from '../../utils/middlewares/upload.middleware.js';
-import { userConstants } from './user.constant.js';
 import { ProtectedMiddleware } from '../../utils/middlewares/protected.middleware.js';
+import { UserDefaults } from './user.constant.js';
+import { GuestMiddleware } from '../../utils/middlewares/guest.middleware.js';
 
 
 @injectable()
 export default class UserController extends Controller {
   constructor(
     @inject(Component.LoggerInterface) logger: LoggerInterface,
+    @inject(Component.ConfigInterface) configService: ConfigInterface,
     @inject(Component.UserServiceInterface) private readonly userService: UserServiceInterface,
-    @inject(Component.ConfigInterface) private readonly configService: ConfigInterface,
   ) {
-    super(logger);
+    super(logger, configService);
 
     this.addRoute({
       path: '/register',
       method: HttpMethod.Post,
       handler: this.create,
-      middlewares: [new ValidateDtoMiddleware(CreateUserDto)]
+      middlewares: [
+        new GuestMiddleware(),
+        new ValidateDtoMiddleware(CreateUserDto)
+      ]
     });
     this.addRoute({
       path: '/login',
@@ -46,7 +50,7 @@ export default class UserController extends Controller {
       middlewares: [
         new ProtectedMiddleware(),
         new ValidateObjectIdMiddleware('id'),
-        new UploadFileMiddleware(`${this.configService.get('STATIC_FOLDER')}/avatars`, 'avatar')
+        new UploadFileMiddleware(`${this.configService.get('UPLOAD_FOLDER')}/avatars`, 'avatar')
       ]
     });
     this.addRoute({
@@ -87,7 +91,7 @@ export default class UserController extends Controller {
       throw new HttpError(StatusCodes.UNAUTHORIZED, 'No user found with that email and password.', 'UserController',);
     }
 
-    const token = await createJWT(userConstants.JWT_ALGORITM, this.configService.get('JWT_SECRET'), {
+    const token = await createJWT(UserDefaults.JWT_ALGORITM, this.configService.get('JWT_SECRET'), {
       email: user.email,
       id: user.id
     });
@@ -96,9 +100,12 @@ export default class UserController extends Controller {
   }
 
   public async uploadAvatar(req: Request, res: Response): Promise<void> {
-    this.created(res, {
-      filepath: req.file?.path,
-    });
+    const { id } = req.params;
+    const dtoAvatar = { avatar: req.file?.path };
+    await this.userService.updateById(id, dtoAvatar);
+    this.created(res, fillDTO(UploadAvatarResponse, {
+      avatar: dtoAvatar.avatar?.split('upload/')[1]
+    }));
   }
 
   public async isLoggedIn(req: Request, res: Response): Promise<void> {
