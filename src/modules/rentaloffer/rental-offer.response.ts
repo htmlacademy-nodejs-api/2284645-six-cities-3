@@ -93,3 +93,8 @@ export class RentalOfferFullResponse {
   @Expose()
   public coordinates!: [number, number];
 }
+
+export class UploadPreviewResponse {
+  @Expose({ name: 'previewImage' })
+  public previewImage!: string;
+}

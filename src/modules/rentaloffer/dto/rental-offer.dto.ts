@@ -18,12 +18,6 @@ export class CreateRentalOfferDto {
   @IsEnum(CityNamesEnum, { message: 'Valid city is required' })
   public city!: CityEnum;
 
-  @IsString({ message: 'String is required' })
-  public previewImage!: string;
-
-  @IsString({ message: 'String is required', each: true })
-  public photos!: string[];
-
   @IsBoolean({ message: 'Boolean is required' })
   public isPremium!: boolean;
 
@@ -62,63 +56,63 @@ export class UpdateRentalOfferDto {
   @IsOptional()
   @IsString({ message: 'String is required' })
   @Length(10, 100, { message: 'Min length is 10, max is 100' })
-  public name!: string;
+  public name?: string;
 
   @IsOptional()
   @IsString({ message: 'String is required' })
   @Length(20, 1024, { message: 'Min length is 20, max is 1024' })
-  public description!: string;
+  public description?: string;
 
   @IsOptional()
   @IsDateString({}, { message: 'createdDate must be valid ISO date' })
-  public createdDate!: Date;
+  public createdDate?: Date;
 
   @IsOptional()
   @IsEnum(CityNamesEnum, { message: 'Valid city is required' })
-  public city!: CityEnum;
+  public city?: CityEnum;
 
   @IsOptional()
   @IsString({ message: 'String is required' })
-  public previewImage!: string;
+  public previewImage?: string;
 
   @IsOptional()
   @IsString({ message: 'String is required', each: true })
-  public photos!: string[];
+  public photos?: string[];
 
   @IsOptional()
   @IsBoolean({ message: 'Boolean is required' })
-  public isPremium!: boolean;
+  public isPremium?: boolean;
 
   @IsOptional()
   @IsEnum(housingTypes, { message: 'Valid housing type is required' })
-  public type!: HousingType;
+  public type?: HousingType;
 
   @IsOptional()
   @IsNumber({}, { message: 'Number is required' })
   @Min(1, { message: 'Min length is 1' })
   @Max(8, { message: 'Max length is 8' })
-  public rooms!: number;
+  public rooms?: number;
 
   @IsOptional()
   @IsNumber({}, { message: 'Number is required' })
   @Min(1, { message: 'Min length is 1' })
   @Max(10, { message: 'Max length is 10' })
-  public guests!: number;
+  public guests?: number;
 
   @IsOptional()
   @IsNumber({}, { message: 'Number is required' })
   @Min(100, { message: 'Min length is 100' })
   @Max(100000, { message: 'Max length is 100000' })
-  public price!: number;
+  public price?: number;
 
   @IsOptional()
   @IsEnum(offerFeatures, { message: 'Valid offer feature is required', each: true })
-  public features!: OfferFeatures[];
+  public features?: OfferFeatures[];
 
   @IsOptional()
   @IsArray({ message: 'coordinates field must be an array' })
   @ArrayMinSize(2, { message: 'coordinates field must have 2 elements' })
   @ArrayMaxSize(2, { message: 'coordinates field must have 2 elements' })
   @IsNumber({}, { each: true })
-  public coordinates!: [number, number];
+  public coordinates?: [number, number];
 }

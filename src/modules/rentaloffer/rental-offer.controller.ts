@@ -9,7 +9,7 @@ import HttpError from '../../utils/errors/http-error.js';
 import { LoggerInterface } from '../../utils/logger/logger.interface.js';
 import { CreateRentalOfferDto, UpdateRentalOfferDto } from './dto/rental-offer.dto.js';
 import { RentalOfferServiceInterface } from './rental-offer.interface.js';
-import { RentalOfferListResponse, RentalOfferFullResponse } from './rental-offer.response.js';
+import { RentalOfferListResponse, RentalOfferFullResponse, UploadPreviewResponse } from './rental-offer.response.js';
 import { CommentServiceInterface } from '../comment/comment.interface.js';
 import { DocumentExistsMiddleware } from '../../utils/middlewares/document-exists.middleware.js';
 import { ValidateObjectIdMiddleware } from '../../utils/middlewares/objectid.middleware.js';
@@ -21,16 +21,19 @@ import { ProtectedMiddleware } from '../../utils/middlewares/protected.middlewar
 import { cities, CityEnum } from '../../types/cities.js';
 import { RentalOfferDefaults } from './rental-offer.constant.js';
 import { CommentDefaults } from '../comment/comment.constant.js';
+import { ConfigInterface } from '../../utils/config/config.interface.js';
+import { UploadFileMiddleware } from '../../utils/middlewares/upload.middleware.js';
 
 @injectable()
 export default class RentalOfferController extends Controller {
   constructor(
     @inject(Component.LoggerInterface) logger: LoggerInterface,
+    @inject(Component.ConfigInterface) configService: ConfigInterface,
     @inject(Component.RentalOfferServiceInterface) private readonly rentalOfferService: RentalOfferServiceInterface,
     @inject(Component.CommentServiceInterface) private readonly commentService: CommentServiceInterface,
     @inject(Component.UserServiceInterface) private readonly userService: UserServiceInterface
   ) {
-    super(logger);
+    super(logger, configService);
 
     this.addRoute({ path: '/', method: HttpMethod.Get, handler: this.index });
     this.addRoute({ path: '/new', method: HttpMethod.Get, handler: this.showRecent });
@@ -100,6 +103,16 @@ export default class RentalOfferController extends Controller {
         new ProtectedMiddleware(),
         new ValidateObjectIdMiddleware('id'),
         new DocumentExistsMiddleware(this.rentalOfferService, 'RentalOffer', 'id'),
+      ]
+    });
+    this.addRoute({
+      path: '/:id/preview',
+      method: HttpMethod.Post,
+      handler: this.uploadPreview,
+      middlewares: [
+        new ProtectedMiddleware(),
+        new ValidateObjectIdMiddleware('id'),
+        new UploadFileMiddleware(`${this.configService.get('UPLOAD_FOLDER')}/previews`, 'preview')
       ]
     });
   }
@@ -263,5 +276,12 @@ export default class RentalOfferController extends Controller {
 
     const result = await this.rentalOfferService.favorite(user, rentalOffer._id);
     return this.ok(res, fillDTO(UserResponse, result));
+  }
+
+  public async uploadPreview(req: Request, res: Response): Promise<void> {
+    const { id } = req.params;
+    const dtoPreviewImage = { previewImage: req.file?.path };
+    await this.rentalOfferService.updateById(id, dtoPreviewImage);
+    this.created(res, fillDTO(UploadPreviewResponse, dtoPreviewImage));
   }
 }

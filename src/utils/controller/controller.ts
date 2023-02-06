@@ -5,13 +5,29 @@ import asyncHandler from 'express-async-handler';
 import { LoggerInterface } from '../logger/logger.interface.js';
 import { RouteInterface } from '../../types/interfaces/route.interface.js';
 import { ControllerInterface } from './controller.interface.js';
+import { ConfigInterface } from '../config/config.interface.js';
+import { UnknownObject } from '../../types/unknown-object.type.js';
+import { getFullServerPath, transformObject } from '../common.js';
+import { STATIC_RESOURCE_FIELDS } from '../../app/application.constant.js';
 
 @injectable()
 export abstract class Controller implements ControllerInterface {
   private readonly _router: Router;
 
-  constructor(protected readonly logger: LoggerInterface) {
+  constructor(
+    protected readonly logger: LoggerInterface,
+    protected readonly configService: ConfigInterface,
+  ) {
     this._router = Router();
+  }
+
+  protected addStaticPath(data: UnknownObject): void {
+    const fullPath = getFullServerPath(this.configService.get('HOST'), this.configService.get('PORT'));
+    transformObject(STATIC_RESOURCE_FIELDS,
+      `${fullPath}/${this.configService.get('STATIC_FOLDER')}`,
+      `${fullPath}/${this.configService.get('UPLOAD_FOLDER')}`,
+      data
+    );
   }
 
   get router() {
@@ -30,6 +46,7 @@ export abstract class Controller implements ControllerInterface {
   }
 
   public send<T>(res: Response, statusCode: number, data: T): void {
+    this.addStaticPath(<UnknownObject>data);
     res
       .type('application/json')
       .status(statusCode)

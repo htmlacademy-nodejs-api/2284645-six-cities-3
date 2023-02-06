@@ -14,15 +14,17 @@ import { CreateCommentDto } from './dto/comment.dto.js';
 import { CommentResponse } from './comment.response.js';
 import { ProtectedMiddleware } from '../../utils/middlewares/protected.middleware.js';
 import { Types } from 'mongoose';
+import { ConfigInterface } from '../../utils/config/config.interface.js';
 
 @injectable()
 export default class CommentController extends Controller {
   constructor(
     @inject(Component.LoggerInterface) logger: LoggerInterface,
+    @inject(Component.ConfigInterface) configService: ConfigInterface,
     @inject(Component.CommentServiceInterface) private readonly commentService: CommentServiceInterface,
     @inject(Component.RentalOfferServiceInterface) private readonly offerService: RentalOfferServiceInterface,
   ) {
-    super(logger);
+    super(logger, configService);
 
     this.addRoute({
       path: '/',

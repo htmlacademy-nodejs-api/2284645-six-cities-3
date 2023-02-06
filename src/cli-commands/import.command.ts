@@ -16,7 +16,7 @@ import TSVFileReader from '../utils/file-reader/tsv-file-reader.js';
 import { LoggerInterface } from '../utils/logger/logger.interface.js';
 import ConsoleLoggerService from '../utils/logger/console-logger.service.js';
 import { getRandomValue } from '../utils/random.js';
-import { RentalOfferModel, UserModel } from '../modules/models.js';
+import { CommentModel, RentalOfferModel, UserModel } from '../modules/models.js';
 import { CommentServiceInterface } from '../modules/comment/comment.interface.js';
 
 export default class ImportCommand implements CliCommandInterface {
@@ -33,7 +33,7 @@ export default class ImportCommand implements CliCommandInterface {
     this.onComplete = this.onComplete.bind(this);
 
     this.logger = new ConsoleLoggerService();
-    this.rentalOfferService = new RentalOfferService(this.logger, RentalOfferModel, this.commentService);
+    this.rentalOfferService = new RentalOfferService(this.logger, RentalOfferModel, UserModel, CommentModel, this.commentService);
     this.userService = new UserService(this.logger, UserModel);
     this.databaseService = new DatabaseService(this.logger);
   }

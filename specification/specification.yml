@@ -49,6 +49,8 @@ paths:
                 $ref: '#/components/schemas/offer'
         "409":
           description: Предложение уже существует.
+        "401":
+          description: Отсутствует или невалиден токен.
   /offers/new:
     get:
       tags:
@@ -121,6 +123,8 @@ paths:
                 $ref: '#/components/schemas/offer'
         "404":
           description: Такого предложения не существует.
+        "401":
+          description: Отсутствует или невалиден токен.
     delete:
       tags:
         - rentaloffers
@@ -130,6 +134,8 @@ paths:
           description: Предложение удалено.
         "404":
           description: Такого предложения не существует.
+        "401":
+          description: Отсутствует или невалиден токен.
 
   # Комментарии
   /comments:
@@ -198,8 +204,8 @@ paths:
       summary: Проверка состояния пользователя
       description: Возвращает информацию по авторизованному пользователю
       responses:
-        "201":
-          description: Пользователь зарегистрирован. Объект пользователя.
+        "200":
+          description: Объект пользователя.
     post:
       tags:
         - users
@@ -226,7 +232,7 @@ paths:
         аватара должно быть в формате `png` или `jpg`.
       responses:
         "201":
-          description: Пользователь зарегистрирован. Объект пользователя.
+          description: Аватар загружен.
         "404":
           description: Такого пользователя не существует.
 
@@ -450,6 +456,9 @@ components:
     user:
       type: object
       properties:
+        id:
+          type: string
+          example: aa123c3d6a15ac1022c6641aa
         name:
           type: string
           example: Alexander

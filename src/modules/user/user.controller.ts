@@ -10,7 +10,7 @@ import { Controller } from '../../utils/controller/controller.js';
 import HttpError from '../../utils/errors/http-error.js';
 import { LoggerInterface } from '../../utils/logger/logger.interface.js';
 import { CreateUserDto, LoginUserDto } from './dto/user.dto.js';
-import { UserResponse, TokenUserResponse } from './user.response.js';
+import { UserResponse, TokenUserResponse, UploadAvatarResponse } from './user.response.js';
 import { ValidateDtoMiddleware } from '../../utils/middlewares/dto.middleware.js';
 import { ValidateObjectIdMiddleware } from '../../utils/middlewares/objectid.middleware.js';
 import { UploadFileMiddleware } from '../../utils/middlewares/upload.middleware.js';
@@ -23,10 +23,10 @@ import { GuestMiddleware } from '../../utils/middlewares/guest.middleware.js';
 export default class UserController extends Controller {
   constructor(
     @inject(Component.LoggerInterface) logger: LoggerInterface,
+    @inject(Component.ConfigInterface) configService: ConfigInterface,
     @inject(Component.UserServiceInterface) private readonly userService: UserServiceInterface,
-    @inject(Component.ConfigInterface) private readonly configService: ConfigInterface,
   ) {
-    super(logger);
+    super(logger, configService);
 
     this.addRoute({
       path: '/register',
@@ -50,7 +50,7 @@ export default class UserController extends Controller {
       middlewares: [
         new ProtectedMiddleware(),
         new ValidateObjectIdMiddleware('id'),
-        new UploadFileMiddleware(`${this.configService.get('STATIC_FOLDER')}/avatars`, 'avatar')
+        new UploadFileMiddleware(`${this.configService.get('UPLOAD_FOLDER')}/avatars`, 'avatar')
       ]
     });
     this.addRoute({
@@ -100,9 +100,12 @@ export default class UserController extends Controller {
   }
 
   public async uploadAvatar(req: Request, res: Response): Promise<void> {
-    this.created(res, {
-      filepath: req.file?.path,
-    });
+    const { id } = req.params;
+    const dtoAvatar = { avatar: req.file?.path };
+    await this.userService.updateById(id, dtoAvatar);
+    this.created(res, fillDTO(UploadAvatarResponse, {
+      avatar: dtoAvatar.avatar?.split('upload/')[1]
+    }));
   }
 
   public async isLoggedIn(req: Request, res: Response): Promise<void> {
