@@ -224,10 +224,7 @@ export default class RentalOfferService implements RentalOfferServiceInterface {
     if (!comments.length) {
       return 1;
     }
-    const ratings = [];
-    for (const comment of comments) {
-      ratings.push(comment.rating);
-    }
+    const ratings = comments.map((comment) => comment.rating);
     return Math.round(average(ratings) * RentalOfferDefaults.RATING_DECIMAL_OFFSET) / RentalOfferDefaults.RATING_DECIMAL_OFFSET;
   }
 
